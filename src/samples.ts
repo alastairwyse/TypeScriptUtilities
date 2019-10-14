@@ -125,15 +125,16 @@ export class Samples {
 
         let storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
         <Iterable<[string, TypeConversionDefinition]>>
-        [
-            [ "DisplayName", JavascriptBasicType.String ], 
-            [ "PricePerUnit", JavascriptBasicType.Number ], 
-            [ "Unit", 
-                [ 
-                    "Bunch", "Piece", "Kilogram", "Pack"  
-                ] 
-            ], 
-        ]);
+            [
+                [ "DisplayName", JavascriptBasicType.String ], 
+                [ "PricePerUnit", JavascriptBasicType.Number ], 
+                [ "Unit", 
+                    [ 
+                        "Bunch", "Piece", "Kilogram", "Pack"  
+                    ] 
+                ], 
+            ]
+        );
 
         let returnedStoreCatalogueItem: StoreCatalogueItem = containerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(
             untypedObject, 
@@ -199,11 +200,13 @@ export class Samples {
                 "PricePerUnit"
             ]
         );
+
         untypedObject = {
             DisplayName: "Onion", 
             PricePerUnit: 380, 
             Unit: "Kilogram" 
         };
+
         returnedStoreCatalogueItem = containerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(
             untypedObject, 
             StoreCatalogueItem, 
@@ -367,18 +370,16 @@ export class Samples {
             [
                 [ "CompanyName", JavascriptBasicType.String ], 
                 [ "Ticker", JavascriptBasicType.String ],
-                [
-                    "Prices", 
-                    <ITypedObjectConversionFunction<Array<StockPrice>>>((untypedObject: any) : Array<StockPrice> => {
-                        let stockPriceDeserializationDefinition = new ObjectTypeConversionDefinition(
-                            <Iterable<[string, TypeConversionDefinition]>>
-                            [
-                                [ "Date", JavascriptBasicType.Date ], 
-                                [ "Price", JavascriptBasicType.Number ]
-                            ]
-                        );
-                        return containerObjectTypeValidator.ValidateAndConvertObjectArray<StockPrice>(untypedObject, StockPrice, stockPriceDeserializationDefinition);
-                    })
+                [ "Prices", <ITypedObjectConversionFunction<Array<StockPrice>>>((untypedObject: any) : Array<StockPrice> => {
+                                let stockPriceDeserializationDefinition = new ObjectTypeConversionDefinition(
+                                    <Iterable<[string, TypeConversionDefinition]>>
+                                    [
+                                        [ "Date", JavascriptBasicType.Date ], 
+                                        [ "Price", JavascriptBasicType.Number ]
+                                    ]
+                                );
+                                return containerObjectTypeValidator.ValidateAndConvertObjectArray<StockPrice>(untypedObject, StockPrice, stockPriceDeserializationDefinition);
+                            })
                 ] 
             ]
         );
@@ -388,7 +389,7 @@ export class Samples {
             Stock, 
             stockDeserializationDefinition
         );
-        console.log(JSON.stringify(returnedStock));  
+        console.log(returnedStock);  
         // Prints the following...
         // {
         //     "companyName": "BHP Billiton Limited",

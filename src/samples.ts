@@ -124,7 +124,7 @@ export class Samples {
         };
 
         let storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
-        <Iterable<[string, TypeConversionDefinition]>>
+            <Iterable<[string, TypeConversionDefinition]>>
             [
                 [ "DisplayName", JavascriptBasicType.String ], 
                 [ "PricePerUnit", JavascriptBasicType.Number ], 
@@ -243,16 +243,17 @@ export class Samples {
         ];
 
         storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
-        <Iterable<[string, TypeConversionDefinition]>>
-        [
-            [ "DisplayName", JavascriptBasicType.String ], 
-            [ "PricePerUnit", JavascriptBasicType.Number ], 
-            [ "Unit", 
-                [ 
-                    "Bunch", "Piece", "Kilogram", "Pack"  
-                ] 
-            ], 
-        ]);
+            <Iterable<[string, TypeConversionDefinition]>>
+            [
+                [ "DisplayName", JavascriptBasicType.String ], 
+                [ "PricePerUnit", JavascriptBasicType.Number ], 
+                [ "Unit", 
+                    [ 
+                        "Bunch", "Piece", "Kilogram", "Pack"  
+                    ] 
+                ], 
+            ]
+        );
 
         let returnedArray: Array<StoreCatalogueItem> = containerObjectTypeValidator.ValidateAndConvertObjectArray<StoreCatalogueItem>(
             untypedArray, 

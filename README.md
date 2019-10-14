@@ -41,7 +41,7 @@ The purpose of the ContainerObjectTypeValidator class is to provide runtime type
 
 #### In Use
 
-The below examples and associated container/model class definitions are available in file [samples.ts](blob/master/src/samples.ts).
+The below examples and associated container/model class definitions are available in file [samples.ts](src/samples.ts).
 
 ##### Validating and converting Javascript basic types and dates...
 
@@ -82,15 +82,15 @@ console.log(returnedDateArray);
 
 ##### Validating TypeScript enums...
 
-Enums are tricky because whilst you can use the 'keyof typeof' statement to retrieve the values of a specifid enum at runtime, I haven't found a way to do the same for generic enum type variable (i.e. the 'T' in a method signature like ConvertEnum<T>()).  Hence ContainerObjectTypeValidator has a method ConvertEnum(defined as follows...)
+Enums are tricky because whilst you can use the 'keyof typeof' statement to retrieve the values of a specifid enum at runtime, I haven't found a way to do the same for generic enum type variables (i.e. the 'T' in a method signature like ConvertEnum&lt;T&gt;()).  Hence ContainerObjectTypeValidator has a method ConvertEnum(defined as follows...)
 
 ```
 public ConvertEnum(untypedEnumValue: any, enumValuesAndMappings: Array<string | [ string, string ]>) : string
 ```
 
 ...which requires the valid enum values to be provided in parameter 'enumValuesAndMappings'.  The parameter is a TypeScript [Union](https://www.typescriptlang.org/docs/handbook/advanced-types.html#union-types) which can be either...
-* an Array<string> where the value of 'untypedEnumValue' is expected to exactly match the enum value defined in TypeScript, OR
-* an Array<[ string, string ]> where the value of 'untypedEnumValue' needs to be mapped to the enum value defined in TypeScript (see example below)
+* an Array&lt;string&gt; where the value of 'untypedEnumValue' is expected to exactly match the enum value defined in TypeScript, OR
+* an Array&lt;[ string, string ]&gt; where the value of 'untypedEnumValue' needs to be mapped to the enum value defined in TypeScript (see example below)
 
 ```
 let untypedEnum = "Pack";
@@ -159,7 +159,7 @@ console.log(returnedStoreCatalogueItem);
   </tr>
   <tr>
     <td valign="top">ITypedObjectConversionFunction<any></td>
-    <td>This is a [function type interface](https://www.typescriptlang.org/docs/handbook/interfaces.html#function-types) which is called/executed during the validation conversion (i.e. can be used to define conversion for objects, objects within objects, etc...)</td>
+    <td>This is a <a href="https://www.typescriptlang.org/docs/handbook/interfaces.html#function-types">function type interface</a> which is called/executed during the validation conversion (i.e. can be used to define conversion for objects, objects within objects, etc...)</td>
   </tr>
   <tr>
     <td valign="top">Array<string | [ string, string ]></td>
@@ -308,7 +308,7 @@ console.log(returnedArray);
 
 #### Validating and converting objects nested within objects...
 
-E.g. for the Stock class which contains nested class StockPrice (again see [samples.ts](blob/master/src/samples.ts) for their definitions)...
+E.g. for the Stock class which contains nested class StockPrice (again see [samples.ts](src/samples.ts) for their definitions)...
 
 ```
 untypedObject = 

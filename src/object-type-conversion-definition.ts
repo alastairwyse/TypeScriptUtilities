@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
+ /**
+  * @name EnumTypeConversionDefinition
+  * @desc An enum mapping definition.  Either of the following values can be accepted...
+  *          Array<string> - A list of the possible enum values in an un-typed ('any') object.
+  *          Array<[ string, string ]> - A list of enum values in an un-typed ('any') object., and the corresponding local
+  *              typescript enum value (e.g. in the case the un-typed object contains numeric representation of the enum values 
+  *              which need to be mapped)
+  */
+export type EnumTypeConversionDefinition = Array<string | [ string, string ]>;
+
 /**
  * @name TypeConversionDefinition
  * @desc A Union representing a data type, method of type conversion, or enum mapping definition.  Any of the following values can be accepted...
@@ -24,7 +34,7 @@
  *              typescript enum value (e.g. in the case the un-typed object contains numeric representation of the enum values 
  *              which need to be mapped)
  */
-export type TypeConversionDefinition = JavascriptBasicType | ITypedObjectConversionFunction<any> | Array<string | [ string, string ]>;
+export type TypeConversionDefinition = JavascriptBasicType | ITypedObjectConversionFunction<any> | EnumTypeConversionDefinition;
 
 /**
  * @name JavascriptBasicType
@@ -56,18 +66,19 @@ export interface ITypedObjectConversionFunction<T> {
  */
 export class ObjectTypeConversionDefinition {
 
-    // TODO: Add support for nullability of basic types and objects
-
     // A map of container object property names (key), and their data type or method of validation/conversion (value)
     protected propertyDefinitions: Map<string, TypeConversionDefinition>;
     // A collection of names of properties on the un-typed object which should be excluded from validation/conversion.
     protected excludeProperties: Map<string, string>;
+    // A collection of names of properties on the un-typed object which are allowed to be set null.
+    protected nullableProperties: Map<string, string>;
 
     /**
      * @param {Iterable<[string, TypeConversionDefinition]>} propertyDefinitions- An Iterable containing object property names (key), and their data type or method of validation/conversion (value)
-     * @param {Array<string>} - Names of properties on the un-typed object which should be excluded from validation/conversion.
+     * @param {Array<string>} excludeProperties - Names of properties on the un-typed object which should be excluded from validation/conversion.
+     * @param {Array<string>} nullableProperties - Names of properties on the un-typed object which are allowed to be set null.
      */ 
-    constructor (propertyDefinitions: Iterable<[string, TypeConversionDefinition]>, excludeProperties: Array<string> = []) {
+    constructor (propertyDefinitions: Iterable<[string, TypeConversionDefinition]>, excludeProperties: Array<string> = [], nullableProperties: Array<string> = []) {
 
         this.propertyDefinitions = new Map<string, TypeConversionDefinition>(propertyDefinitions);
         if (this.propertyDefinitions.size === 0)
@@ -79,6 +90,16 @@ export class ObjectTypeConversionDefinition {
                 throw new Error(`Parameter 'excludeProperties' contains a blank or empty property name.`);
 
             this.excludeProperties.set(currentExcludeProperty, currentExcludeProperty);
+        }
+
+        this.nullableProperties = new Map<string, string>();
+        for (let currentNullableProperty of nullableProperties) {
+            if (currentNullableProperty.trim() === "") 
+                throw new Error(`Parameter 'nullableProperties' contains a blank or empty property name.`);
+            if (this.propertyDefinitions.has(currentNullableProperty) === false)
+                throw new Error(`Parameter 'nullableProperties' contains a property name '${currentNullableProperty}' which is not defined in parameter 'propertyDefinitions'.`);
+
+            this.nullableProperties.set(currentNullableProperty, currentNullableProperty);
         }
     }
     
@@ -122,5 +143,19 @@ export class ObjectTypeConversionDefinition {
     PropertyIsExcluded(propertyName: string) : boolean {
 
         return this.excludeProperties.has(propertyName);
+    }
+
+    
+    /**
+     * @name PropertyIsNullable
+     * @desc Checks whether the property with the specified name can be set null.
+
+     * @param {string} propertyName - The property name to check for.
+     * 
+     * @returns {boolean} - True if the property can bet set null, false otherwise.
+     */
+    PropertyIsNullable(propertyName: string) : boolean {
+
+        return this.nullableProperties.has(propertyName);
     }
 }

@@ -53,6 +53,52 @@ class StoreCatalogueItem {
     }
 }
 
+class StoreCatalogueItemWithNullableProperty {
+    protected displayName: string;
+    protected pricePerUnit: number;
+    protected unit: UnitOfSale;
+    protected dateAdded: Date | null;
+
+    get DisplayName(): string {
+        return this.displayName;
+    }
+
+    get PricePerUnit(): number {
+        return this.pricePerUnit;
+    }
+
+    get Unit(): UnitOfSale {
+        return this.unit;
+    }
+
+    get DateAdded(): Date | null {
+        return this.dateAdded;
+    }
+
+    set DisplayName(value: string) {
+        this.displayName = value;
+    }
+
+    set PricePerUnit(value: number) {
+        this.pricePerUnit = value;
+    }
+
+    set Unit(value: UnitOfSale) {
+        this.unit = value;
+    }
+
+    set DateAdded(value: Date | null) {
+        this.dateAdded = value;
+    }
+
+    constructor() {
+        this.displayName = "";
+        this.pricePerUnit = 0;
+        this.unit = UnitOfSale.Bunch;
+        this.dateAdded = new Date();
+    }
+}
+
 class StockPrice {
 
     protected date: Date;
@@ -76,6 +122,57 @@ class StockPrice {
 }
 
 class Stock {
+
+    protected companyName: string;
+    protected ticker: string;
+    protected prices: Array<StockPrice>
+    
+    get CompanyName(): string {
+        return this.companyName;
+    }
+
+    set CompanyName(value: string) {
+        this.companyName = value;
+    }
+
+    get Ticker(): string {
+        return this.ticker;
+    }
+
+    set Ticker(value: string) {
+        this.ticker = value;
+    }
+
+    get Prices(): Array<StockPrice> {
+        return this.prices;
+    }
+
+    set Prices(value: Array<StockPrice>) {
+        this.prices = value;
+    }
+}
+
+class StockWithTypeConversionDefinition {
+
+    public static TypeConversionDefinition = new ObjectTypeConversionDefinition(
+        // Parameter 'propertyDefinitions'
+        <Iterable<[string, TypeConversionDefinition]>>
+        [
+            [ "CompanyName", JavascriptBasicType.String ], 
+            [ "Ticker", JavascriptBasicType.String ],
+            [ "Prices", <ITypedObjectConversionFunction<Array<StockPrice>>>((untypedObject: any) : Array<StockPrice> => {
+                            let stockPriceTypeConversionDefinition = new ObjectTypeConversionDefinition(
+                                <Iterable<[string, TypeConversionDefinition]>>
+                                [
+                                    [ "Date", JavascriptBasicType.Date ], 
+                                    [ "Price", JavascriptBasicType.Number ]
+                                ]
+                            );
+                            return new ContainerObjectTypeValidator().ValidateAndConvertObjectArray<StockPrice>(untypedObject, StockPrice, stockPriceTypeConversionDefinition);
+                        })
+            ] 
+        ]
+    );
 
     protected companyName: string;
     protected ticker: string;
@@ -365,21 +462,21 @@ export class Samples {
             ]
         };
 
-        let stockDeserializationDefinition = new ObjectTypeConversionDefinition(
+        let stockTypeConversionDefinition = new ObjectTypeConversionDefinition(
             // Parameter 'propertyDefinitions'
             <Iterable<[string, TypeConversionDefinition]>>
             [
                 [ "CompanyName", JavascriptBasicType.String ], 
                 [ "Ticker", JavascriptBasicType.String ],
                 [ "Prices", <ITypedObjectConversionFunction<Array<StockPrice>>>((untypedObject: any) : Array<StockPrice> => {
-                                let stockPriceDeserializationDefinition = new ObjectTypeConversionDefinition(
+                                let stockPriceTypeConversionDefinition = new ObjectTypeConversionDefinition(
                                     <Iterable<[string, TypeConversionDefinition]>>
                                     [
                                         [ "Date", JavascriptBasicType.Date ], 
                                         [ "Price", JavascriptBasicType.Number ]
                                     ]
                                 );
-                                return containerObjectTypeValidator.ValidateAndConvertObjectArray<StockPrice>(untypedObject, StockPrice, stockPriceDeserializationDefinition);
+                                return containerObjectTypeValidator.ValidateAndConvertObjectArray<StockPrice>(untypedObject, StockPrice, stockPriceTypeConversionDefinition);
                             })
                 ] 
             ]
@@ -388,7 +485,7 @@ export class Samples {
         let returnedStock: Stock = containerObjectTypeValidator.ValidateAndConvertObject<Stock>(
             untypedObject, 
             Stock, 
-            stockDeserializationDefinition
+            stockTypeConversionDefinition
         );
         console.log(returnedStock);  
         // Prints the following...
@@ -418,5 +515,90 @@ export class Samples {
         //         }
         //     ]
         // }
+
+
+        // -------------------------------
+        // Handling nullable properties...
+        // -------------------------------
+        storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
+            // 'propertyDefinitions' parameter
+            <Iterable<[string, TypeConversionDefinition]>>
+            [
+                [ "DisplayName", JavascriptBasicType.String ], 
+                [ "PricePerUnit", JavascriptBasicType.Number ], 
+                [ "Unit", 
+                    [ 
+                        "Bunch", "Piece", "Kilogram", "Pack"  
+                    ] 
+                ], 
+                [ "DateAdded", JavascriptBasicType.Date ]
+            ], 
+            // 'excludeProperties' parameter
+            <Array<string>>[], 
+            // 'nullableProperties' parameter
+            <Array<string>>[
+                "DateAdded"
+            ]
+        );
+
+        untypedObject = {
+            DisplayName: "Onion", 
+            PricePerUnit: 380, 
+            Unit: "Kilogram" , 
+            DateAdded: null
+        };
+
+        let returnedStoreCatalogueItem2: StoreCatalogueItemWithNullableProperty = containerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItemWithNullableProperty>(
+            untypedObject, 
+            StoreCatalogueItemWithNullableProperty, 
+            storeCatalogueItemObjectTypeConversionDefinition
+        );
+        console.log(returnedStoreCatalogueItem2);  
+        // Prints the following...
+        // {
+        //     "displayName": "Onion",
+        //     "pricePerUnit": 380,
+        //     "unit": "Kilogram",
+        //     "dateAdded": null
+        // }
+
+
+        // -------------------------------------------------------------------------------------
+        // Including the type validation/conversion definition within a container/model class...
+        // -------------------------------------------------------------------------------------
+        untypedObject = 
+        {
+            "CompanyName": "BHP Billiton Limited",
+            "Ticker": "BHP.AX",
+            "Prices": [
+                {
+                    "Date": "2019-09-24T00:00:00",
+                    "Price": "37.5"
+                },
+                {
+                    "Date": "2019-09-25T00:00:00",
+                    "Price": "36.42"
+                },
+                {
+                    "Date": "2019-09-26T00:00:00",
+                    "Price": "36.82"
+                },
+                {
+                    "Date": "2019-09-27T00:00:00",
+                    "Price": "36.5"
+                },
+                {
+                    "Date": "2019-09-30T00:00:00",
+                    "Price": "36.92"
+                }
+            ]
+        };
+
+        let returnedStock2: StockWithTypeConversionDefinition = containerObjectTypeValidator.ValidateAndConvertObject<StockWithTypeConversionDefinition>(
+            untypedObject, 
+            StockWithTypeConversionDefinition, 
+            StockWithTypeConversionDefinition.TypeConversionDefinition
+        );
+        console.log(returnedStock2); 
     }       
 }

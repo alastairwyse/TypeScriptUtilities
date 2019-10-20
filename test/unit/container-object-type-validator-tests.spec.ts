@@ -15,7 +15,7 @@
  */
 
 import { JavaScriptStringConstants } from '../../src/javascript-string-constants';
-import { JavascriptBasicType, TypeConversionDefinition, ObjectTypeConversionDefinition } from '../../src/object-type-conversion-definition';
+import { JavascriptBasicType, TypeConversionDefinition, ObjectTypeConversionDefinition, EnumTypeConversionDefinition } from '../../src/object-type-conversion-definition';
 import { ContainerObjectTypeValidator } from '../../src/container-object-type-validator';
 
 // #region Test Classes
@@ -72,6 +72,62 @@ class StoreCatalogueItem {
     }
 
     set DateAdded(value: Date) {
+        this.dateAdded = value;
+    }
+
+    constructor() {
+        this.displayName = "";
+        this.pricePerUnit = 0;
+        this.unit = UnitOfSale.Bunch;
+        this.inStock = false;
+        this.dateAdded = new Date();
+    }
+}
+
+class StoreCatalogueItemWithNullableDate {
+    protected displayName: string;
+    protected pricePerUnit: number;
+    protected unit: UnitOfSale;
+    protected inStock: boolean;
+    protected dateAdded: Date | null;
+
+    get DisplayName(): string {
+        return this.displayName;
+    }
+
+    get PricePerUnit(): number {
+        return this.pricePerUnit;
+    }
+
+    get Unit(): UnitOfSale {
+        return this.unit;
+    }
+
+    get InStock(): boolean {
+        return this.inStock;
+    }
+
+    get DateAdded(): Date | null {
+        return this.dateAdded;
+    }
+
+    set DisplayName(value: string) {
+        this.displayName = value;
+    }
+
+    set PricePerUnit(value: number) {
+        this.pricePerUnit = value;
+    }
+
+    set Unit(value: UnitOfSale) {
+        this.unit = value;
+    }
+
+    set InStock(value: boolean) {
+        this.inStock = value;
+    }
+
+    set DateAdded(value: Date | null) {
         this.dateAdded = value;
     }
 
@@ -147,6 +203,32 @@ describe("ContainerObjectTypeValidator Tests", () => {
 
     // #endregion 
 
+    // #region ConvertNullableNumber() Tests
+
+    it("ConvertNullableNumber(): Invalid type exception.", done => {
+        expect(() => {
+            let inputValue = { objectName: "myObject" };
+            testContainerObjectTypeValidator.ConvertNullableNumber(inputValue);
+        }).toThrow(new TypeError("Parameter 'untypedNumber' was expected to be of type 'string' or 'number' but was 'object'."));
+        done();
+    });
+
+    it("ConvertNullableNumber(): Null parameter success test.", done => {
+        let inputValue: any = null;
+        let result: number | null = testContainerObjectTypeValidator.ConvertNullableNumber(inputValue);
+        expect(result).toBe(null);
+        done();
+    });
+
+    it("ConvertNullableNumber(): String-typed parameter success test.", done => {
+        let inputValue: string = "123";
+        let result: number | null = testContainerObjectTypeValidator.ConvertNullableNumber(inputValue);
+        expect(result).toBe(123);
+        done();
+    });
+
+    // #endregion 
+
     // #region ConvertBoolean() Tests
 
     it("ConvertBoolean(): String-typed parameter success test.", done => {
@@ -189,7 +271,41 @@ describe("ContainerObjectTypeValidator Tests", () => {
 
     // #endregion 
 
+    // #region ConvertNullableBoolean() Tests
+
+    it("ConvertNullableBoolean(): Invalid type exception.", done => {
+        expect(() => {
+            let inputValue: number = 123;
+            testContainerObjectTypeValidator.ConvertNullableBoolean(inputValue);
+        }).toThrow(new TypeError("Parameter 'untypedBoolean' was expected to be of type 'string' or 'boolean' but was 'number'."));
+        done();
+    });
+
+    it("ConvertNullableBoolean(): Null parameter success test.", done => {
+        let inputValue: any = null;
+        let result: boolean | null = testContainerObjectTypeValidator.ConvertNullableBoolean(inputValue);
+        expect(result).toBe(null);
+        done();
+    });
+
+    it("ConvertNullableBoolean(): String-typed parameter success test.", done => {
+        let inputValue: string = "FALSE";
+        let result: boolean = testContainerObjectTypeValidator.ConvertNullableBoolean(inputValue);
+        expect(result).toBe(false);
+        done();
+    });
+
+    // #endregion 
+
     // #region ConvertString() Tests
+
+    it("ConvertNullableNumber(): Invalid type exception.", done => {
+        expect(() => {
+            let inputValue = { objectName: "myObject" };
+            testContainerObjectTypeValidator.ConvertString(inputValue);
+        }).toThrow(new TypeError("Parameter 'untypedString' was expected to be of type 'string', 'boolean', or 'number' but was 'object'."));
+        done();
+    });
 
     it("ConvertString(): String-typed parameter success test.", done => {
         let inputValue: string = "abc";
@@ -209,6 +325,32 @@ describe("ContainerObjectTypeValidator Tests", () => {
         let inputValue: boolean = false;
         let result: string = testContainerObjectTypeValidator.ConvertString(inputValue);
         expect(result).toBe("false");
+        done();
+    });
+
+    // #endregion 
+
+    // #region ConvertNullableString() Tests
+
+    it("ConvertNullableString(): Invalid type exception.", done => {
+        expect(() => {
+            let inputValue = { objectName: "myObject" };
+            testContainerObjectTypeValidator.ConvertNullableString(inputValue);
+        }).toThrow(new TypeError("Parameter 'untypedString' was expected to be of type 'string', 'boolean', or 'number' but was 'object'."));
+        done();
+    });
+
+    it("ConvertNullableString(): Null parameter success test.", done => {
+        let inputValue: any = null;
+        let result: string | null = testContainerObjectTypeValidator.ConvertNullableString(inputValue);
+        expect(result).toBe(null);
+        done();
+    });
+
+    it("ConvertNullableString(): Number-typed parameter success test.", done => {
+        let inputValue: any = 1234;
+        let result: string | null = testContainerObjectTypeValidator.ConvertNullableString(inputValue);
+        expect(result).toBe("1234");
         done();
     });
 
@@ -246,6 +388,37 @@ describe("ContainerObjectTypeValidator Tests", () => {
 
     // #endregion 
 
+    // #region ConvertNullableDate() Tests
+
+    it("ConvertNullableDate(): Invalid type exception.", done => {
+        expect(() => {
+            let inputValue = true;
+            testContainerObjectTypeValidator.ConvertNullableDate(inputValue);
+        }).toThrow(new TypeError("Parameter 'untypedDate' was expected to be of type 'string' or 'object' but was 'boolean'."));
+        done();
+    });
+
+    it("ConvertNullableDate(): Null parameter success test.", done => {
+        let inputValue: any = null;
+        let result: Date | null = testContainerObjectTypeValidator.ConvertNullableDate(inputValue);
+        expect(result).toBe(null);
+        done();
+    });
+
+    it("ConvertNullableDate(): String-typed parameter success test.", done => {
+        let inputValue: string = "2019-10-08 22:21:05";
+        let result: Date | null = testContainerObjectTypeValidator.ConvertNullableDate(inputValue);
+        expect(result.getFullYear()).toBe(2019);
+        expect(result.getMonth()).toBe(9); // getMonth() returns a 0-based result (?!?)
+        expect(result.getDate()).toBe(8);
+        expect(result.getHours()).toBe(22);
+        expect(result.getMinutes()).toBe(21);
+        expect(result.getSeconds()).toBe(5);
+        done();
+    });
+
+    // #endregion 
+
     // #region ConvertEnum() Tests
 
     it("ConvertEnum(): Empty 'enumValuesAndMappings' parameter throws exception.", done => {
@@ -257,7 +430,7 @@ describe("ContainerObjectTypeValidator Tests", () => {
 
     it("ConvertEnum(): Could not match enum mapping value throws exception.", done => {
         expect(() => {
-            let enumValuesAndMappings: Array<[ string, string ]> = [
+            let enumValuesAndMappings: EnumTypeConversionDefinition = [
                 [ "0",  "Apple" ], 
                 [ "1",  "Orange" ], 
                 [ "2",  "Peach" ], 
@@ -270,7 +443,7 @@ describe("ContainerObjectTypeValidator Tests", () => {
 
     it("ConvertEnum(): Could not match enum direct conversion value throws exception.", done => {
         expect(() => {
-            let enumValuesAndMappings: Array<string> = [
+            let enumValuesAndMappings: EnumTypeConversionDefinition = [
                 "Apple", 
                 "Orange", 
                 "Peach", 
@@ -283,11 +456,11 @@ describe("ContainerObjectTypeValidator Tests", () => {
 
     it("ConvertEnum(): Mapping local value undefined or null throws exception.", done => {
         expect(() => {
-            let enumValuesAndMappings: Array<any> = [
-                [ "Apple" ], 
-                [ "Orange" ], 
-                [ "Peach" ], 
-                [ "Grape" ]
+            let enumValuesAndMappings: EnumTypeConversionDefinition = [
+                [ "0", "Apple" ], 
+                [ "1", "Orange" ], 
+                [ "2", null ], 
+                [ "3", "Grape" ]
             ];
             testContainerObjectTypeValidator.ConvertEnum("Orange", enumValuesAndMappings);
         }).toThrow(new TypeError("Parameter 'enumValuesAndMappings' contains an undefined or null local value."));
@@ -309,7 +482,7 @@ describe("ContainerObjectTypeValidator Tests", () => {
 
     it("ConvertEnum(): Direct conversion success test.", done => {
         let untypedEnumValue: string = "Orange";
-        let enumValuesAndMappings: Array<string> = [
+        let enumValuesAndMappings: EnumTypeConversionDefinition = [
             "Apple", 
             "Orange", 
             "Peach", 
@@ -530,6 +703,107 @@ describe("ContainerObjectTypeValidator Tests", () => {
         done();
     });
 
+    it("ValidateAndConvertObject(): Not-nullable field with null value throws exception.", done => {
+        expect(() => {
+            let inputObject: any =  {
+                DisplayName: "Onion", 
+                PricePerUnit: 380, 
+                Unit: "1", 
+                InStock: true, 
+                DateAdded: null
+            };
+            testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(inputObject, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
+        }).toThrow(new Error("Property 'DateAdded' is not defined as nullable but has a null value."));
+        done();
+    });
+
+    it("ValidateAndConvertObject(): Nullable field with null value success test.", done => {
+        storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
+            <Iterable<[string, TypeConversionDefinition]>>
+            [
+                [ "DisplayName", (untypedString: any) : string => {
+                        return untypedString.toString();
+                    } 
+                ], 
+                [ "PricePerUnit", JavascriptBasicType.Number ], 
+                [ "Unit", 
+                    [ 
+                        [ "0", "Bunch" ], [ "1", "Piece" ], [ "2", "Kilogram" ], [ "3", "Pack" ]  
+                    ] 
+                ], 
+                [ "InStock", JavascriptBasicType.Boolean ], 
+                [ "DateAdded", JavascriptBasicType.Date ] 
+            ], 
+            [], 
+            [ "DateAdded" ]
+        );
+        let inputObject: any =  {
+            DisplayName: "Onion", 
+            PricePerUnit: 380, 
+            Unit: "2", 
+            InStock: true, 
+            DateAdded: null
+        };
+
+        let result: StoreCatalogueItemWithNullableDate = testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItemWithNullableDate>(inputObject, StoreCatalogueItemWithNullableDate, storeCatalogueItemObjectTypeConversionDefinition);
+        
+        expect(typeof(result.DisplayName)).toBe(JavaScriptStringConstants.StringType);
+        expect(result.DisplayName).toBe("Onion");
+        expect(typeof(result.PricePerUnit)).toBe(JavaScriptStringConstants.NumberType);
+        expect(result.PricePerUnit).toBe(380);
+        expect(typeof(result.Unit)).toBe(JavaScriptStringConstants.StringType);
+        expect(result.Unit).toBe(UnitOfSale.Kilogram);
+        expect(typeof(result.InStock)).toBe(JavaScriptStringConstants.BooleanType);
+        expect(result.InStock).toBe(true);
+        expect(result.DateAdded).toBe(null);
+        done();
+    });
+
+    it("ValidateAndConvertObject(): Nullable field with not-null value success test.", done => {
+        storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
+            <Iterable<[string, TypeConversionDefinition]>>
+            [
+                [ "DisplayName", (untypedString: any) : string => {
+                        return untypedString.toString();
+                    } 
+                ], 
+                [ "PricePerUnit", JavascriptBasicType.Number ], 
+                [ "Unit", 
+                    [ 
+                        [ "0", "Bunch" ], [ "1", "Piece" ], [ "2", "Kilogram" ], [ "3", "Pack" ]  
+                    ] 
+                ], 
+                [ "InStock", JavascriptBasicType.Boolean ], 
+                [ "DateAdded", JavascriptBasicType.Date ] 
+            ], 
+            [], 
+            [ "DateAdded" ]
+        );
+        let inputObject: any =  {
+            DisplayName: "Onion", 
+            PricePerUnit: 380, 
+            Unit: "2", 
+            InStock: true, 
+            DateAdded: "2002-01-17"
+        };
+
+        let result: StoreCatalogueItemWithNullableDate = testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItemWithNullableDate>(inputObject, StoreCatalogueItemWithNullableDate, storeCatalogueItemObjectTypeConversionDefinition);
+        
+        expect(typeof(result.DisplayName)).toBe(JavaScriptStringConstants.StringType);
+        expect(result.DisplayName).toBe("Onion");
+        expect(typeof(result.PricePerUnit)).toBe(JavaScriptStringConstants.NumberType);
+        expect(result.PricePerUnit).toBe(380);
+        expect(typeof(result.Unit)).toBe(JavaScriptStringConstants.StringType);
+        expect(result.Unit).toBe(UnitOfSale.Kilogram);
+        expect(typeof(result.InStock)).toBe(JavaScriptStringConstants.BooleanType);
+        expect(result.InStock).toBe(true);
+        expect(typeof(result.DateAdded)).toBe(JavaScriptStringConstants.ObjectType);
+        expect(result.DateAdded.getFullYear()).toBe(2002);
+        expect(result.DateAdded.getMonth()).toBe(0); // getMonth() returns a 0-based result (?!?)
+        expect(result.DateAdded.getDate()).toBe(17);
+        done();
+    });
+
     // #endregion 
 
     // #region ValidateAndConvertObjectArray() Tests
@@ -683,6 +957,58 @@ describe("ContainerObjectTypeValidator Tests", () => {
         expect(result[1]).toBe(456);
         expect(typeof(result[2])).toBe(JavaScriptStringConstants.NumberType);
         expect(result[2]).toBe(789);
+        expect(typeof(result[3])).toBe(JavaScriptStringConstants.NumberType);
+        expect(result[3]).toBe(12);
+        done();
+    });
+
+    // #endregion 
+
+    // #region ValidateAndConvertBasicNullableTypeArray() Tests
+
+    it("ValidateAndConvertBasicNullableTypeArray(): Parameter 'inputArray' not an array throws exception.", done => {
+        expect(() => {
+            let inputObject: any = {
+                DisplayName: "Onion", 
+                PricePerUnit: 380, 
+                Unit: "2", 
+                InStock: true, 
+                DateAdded: "2002-01-17"
+            };
+            testContainerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray<number>(inputObject, JavascriptBasicType.Number);
+        }).toThrow(new TypeError("Parameter 'inputArray' is not an array."));
+        done();
+    });
+
+    it("ValidateAndConvertBasicNullableTypeArray(): Error converting array element throws exception.", done => {
+        expect(() => {
+            let inputArray: Array<any> = [
+                "123", 
+                null, 
+                "abc", 
+                "789"
+            ];
+            testContainerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray<number>(inputArray, JavascriptBasicType.Number);
+        }).toThrow(new TypeError("Error attempting to validate and convert array element 'abc':  Parameter 'untypedNumber' with value 'abc' could not be converted to a number."));
+        done();
+    });
+
+    it("ValidateAndConvertBasicNullableTypeArray(): Success test.", done => {
+        let inputArray: Array<any> = [
+            "123", 
+            "456", 
+            null, 
+            "012"
+        ];
+
+        let result: Array<number | null> = testContainerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray<number>(inputArray, JavascriptBasicType.Number);
+
+        expect(typeof(result[0])).toBe(JavaScriptStringConstants.NumberType);
+        expect(result[0]).toBe(123);
+        expect(typeof(result[1])).toBe(JavaScriptStringConstants.NumberType);
+        expect(result[1]).toBe(456);
+        expect(typeof(result[2])).toBe(JavaScriptStringConstants.ObjectType);
+        expect(result[2]).toBe(null);
         expect(typeof(result[3])).toBe(JavaScriptStringConstants.NumberType);
         expect(result[3]).toBe(12);
         done();

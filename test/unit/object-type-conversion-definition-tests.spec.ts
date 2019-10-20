@@ -27,11 +27,14 @@ describe("ObjectTypeConversionDefinition Tests", () => {
             [ 
                 [ "Property1", JavascriptBasicType.String ], 
                 [ "Property2", JavascriptBasicType.Boolean ], 
-                [ "Property3", JavascriptBasicType.Number ]
+                [ "Property3", JavascriptBasicType.Number ], 
+                [ "Property6", JavascriptBasicType.Number ], 
+                [ "Property7", JavascriptBasicType.Number ]
             ] 
         );
         let excludeProperties: Array<string> = [ "Property4", "Property5" ];
-        testObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(propertyDefinitions, excludeProperties);
+        let nullableProperties: Array<string> = [ "Property6", "Property7" ];
+        testObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(propertyDefinitions, excludeProperties, nullableProperties);
     });
   
     afterEach(() => { 
@@ -53,6 +56,38 @@ describe("ObjectTypeConversionDefinition Tests", () => {
         done();
     });
 
+    it("Constructor(): 'nullableProperties' parameter with empty element throws exception.", done => {
+        expect(() => {
+            let propertyDefinitions: Map<string, JavascriptBasicType> = new Map<string, JavascriptBasicType>(
+                [ 
+                    [ "Property1", JavascriptBasicType.String ], 
+                    [ "Property2", JavascriptBasicType.Boolean ], 
+                    [ "Property3", JavascriptBasicType.Number ]
+                ] 
+            );
+            let excludeProperties: Array<string> = [];
+            let nullableProperties: Array<string> = [ "Property2", "", "Property3" ];
+            testObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(propertyDefinitions, excludeProperties, nullableProperties);
+        }).toThrow(new TypeError("Parameter 'nullableProperties' contains a blank or empty property name."));
+        done();
+    });
+
+    it("Constructor(): 'nullableProperties' parameter with undefined property throws exception.", done => {
+        expect(() => {
+            let propertyDefinitions: Map<string, JavascriptBasicType> = new Map<string, JavascriptBasicType>( 
+                [
+                    [ "Property1", JavascriptBasicType.String ], 
+                    [ "Property2", JavascriptBasicType.String ], 
+                    [ "Property3", JavascriptBasicType.String ]
+                ] 
+            );
+            let excludeProperties: Array<string> = [ ];
+            let nullableProperties: Array<string> = [ "Property2", "Property4" ];
+            testObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(propertyDefinitions, excludeProperties, nullableProperties);
+        }).toThrow(new TypeError("Parameter 'nullableProperties' contains a property name 'Property4' which is not defined in parameter 'propertyDefinitions'."));
+        done();
+    });
+
     it("GetDefinition(): No validation/conversion definition for specified property name throws exception.", done => {
         expect(() => {
             let propertyDefinitions: Map<string, JavascriptBasicType> = new Map<string, JavascriptBasicType>( [ [ "Property1", JavascriptBasicType.String ] ] );
@@ -65,7 +100,7 @@ describe("ObjectTypeConversionDefinition Tests", () => {
     it("HasDefinition(): Success test.", done => {
         let result: boolean = testObjectTypeConversionDefinition.HasDefinition("Property1");
         expect(result).toBe(true);
-        result = testObjectTypeConversionDefinition.HasDefinition("Property6");
+        result = testObjectTypeConversionDefinition.HasDefinition("Property8");
         expect(result).toBe(false);
         done();
     });
@@ -74,6 +109,14 @@ describe("ObjectTypeConversionDefinition Tests", () => {
         let result: boolean = testObjectTypeConversionDefinition.PropertyIsExcluded("Property4");
         expect(result).toBe(true);
         result = testObjectTypeConversionDefinition.PropertyIsExcluded("Property1");
+        expect(result).toBe(false);
+        done();
+    });
+
+    it("PropertyIsNullable(): Success test.", done => {
+        let result: boolean = testObjectTypeConversionDefinition.PropertyIsNullable("Property6");
+        expect(result).toBe(true);
+        result = testObjectTypeConversionDefinition.PropertyIsNullable("Property1");
         expect(result).toBe(false);
         done();
     });

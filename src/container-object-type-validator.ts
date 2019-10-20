@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import { JavascriptBasicType, ITypedObjectConversionFunction, TypeConversionDefinition, ObjectTypeConversionDefinition } from './object-type-conversion-definition';
+import { 
+    JavascriptBasicType, 
+    ITypedObjectConversionFunction, 
+    EnumTypeConversionDefinition, 
+    TypeConversionDefinition, 
+    ObjectTypeConversionDefinition 
+} from './object-type-conversion-definition';
 import { JavaScriptStringConstants } from './javascript-string-constants';
 
 /**
@@ -25,10 +31,12 @@ import { JavaScriptStringConstants } from './javascript-string-constants';
 export class ContainerObjectTypeValidator {
 
     protected typeToConversionFunctionMap: Map<JavascriptBasicType, ITypedObjectConversionFunction<any>>;
+    protected nullableTypeToConversionFunctionMap: Map<JavascriptBasicType, ITypedObjectConversionFunction<any>>;
 
     constructor() {
         this.typeToConversionFunctionMap = new Map<JavascriptBasicType, ITypedObjectConversionFunction<any>>();
-        this.InitializeTypeToConversionFunctionMap();
+        this.nullableTypeToConversionFunctionMap = new Map<JavascriptBasicType, ITypedObjectConversionFunction<any>>();
+        this.InitializeTypeToConversionFunctionMaps();
     }
 
     /**
@@ -45,6 +53,7 @@ export class ContainerObjectTypeValidator {
      * @throws {Error} - Parameter 'inputObject' does not contain required property.
      * @throws {Error} - Parameter 'ObjectTypeConversionDefinition' does not contain a type conversion definition for a required object property.
      * @throws {Error} - Error attempting to validate and convert object property.
+     * @throws {Error} - Property is not defined as nullable but has a null value.
      */
     public ValidateAndConvertObject<T>(inputObject: any, type: { new(): T; }, objectTypeConversionDefinition: ObjectTypeConversionDefinition) : T {
 
@@ -59,29 +68,37 @@ export class ContainerObjectTypeValidator {
                     if (objectTypeConversionDefinition.HasDefinition(currentPropertyName) == false)
                         throw new Error(`Parameter 'ObjectTypeConversionDefinition' does not contain a type conversion definition for object property '${currentPropertyName}'.`);
  
-                    let typeConversionDefinition: TypeConversionDefinition = objectTypeConversionDefinition.GetDefinition(currentPropertyName);
-                    try {
-                        if (typeof(typeConversionDefinition) === JavaScriptStringConstants.NumberType) {
-                            // If the value in 'typeConversionDefinition' is a number (i.e. JavascriptBasicType), attempt to use one of the basic type converters
-                            if (this.typeToConversionFunctionMap.has(<JavascriptBasicType>typeConversionDefinition) === false)
-                                throw new Error(`Conversion of basic JavaScript type not supported.`);
-
-                            let typeConversionFunction: ITypedObjectConversionFunction<any> = this.typeToConversionFunctionMap.get(<JavascriptBasicType>typeConversionDefinition);
-                            typeInstance[currentPropertyName] = typeConversionFunction.call(this, inputObject[currentPropertyName]);
-                        }
-                        else if (Array.isArray(typeConversionDefinition) === true) {
-                            // If the value in 'typeConversionDefinition' is an array, use the enum converter
-                            let enumValuesAndMappings = <Array<string | [ string, string ]>>typeConversionDefinition;
-                            typeInstance[currentPropertyName] = this.ConvertEnum(inputObject[currentPropertyName], enumValuesAndMappings);
-                        }
-                        else  {
-                            // Attempt to use a custom conversion function from the 'objectTypeConversionDefinition' parameter
-                            let typeConversionFunction: ITypedObjectConversionFunction<any> = <ITypedObjectConversionFunction<any>>typeConversionDefinition;
-                            typeInstance[currentPropertyName] = typeConversionFunction.call(this, inputObject[currentPropertyName]);
-                        }
+                    if (inputObject[currentPropertyName] === null) {
+                        if (objectTypeConversionDefinition.PropertyIsNullable(currentPropertyName) === true) 
+                            typeInstance[currentPropertyName] = null;
+                        else
+                            throw new Error(`Property '${currentPropertyName}' is not defined as nullable but has a null value.`);
                     }
-                    catch (error) {
-                        throw new Error(`Error attempting to validate and convert property '${currentPropertyName}':  ${error.message}`);
+                    else {
+                        let typeConversionDefinition: TypeConversionDefinition = objectTypeConversionDefinition.GetDefinition(currentPropertyName);
+                        try {
+                            if (typeof(typeConversionDefinition) === JavaScriptStringConstants.NumberType) {
+                                // If the value in 'typeConversionDefinition' is a number (i.e. JavascriptBasicType), attempt to use one of the basic type converters
+                                if (this.typeToConversionFunctionMap.has(<JavascriptBasicType>typeConversionDefinition) === false)
+                                    throw new Error(`Conversion of basic JavaScript type not supported.`);
+    
+                                let typeConversionFunction: ITypedObjectConversionFunction<any> = this.typeToConversionFunctionMap.get(<JavascriptBasicType>typeConversionDefinition);
+                                typeInstance[currentPropertyName] = typeConversionFunction.call(this, inputObject[currentPropertyName]);
+                            }
+                            else if (Array.isArray(typeConversionDefinition) === true) {
+                                // If the value in 'typeConversionDefinition' is an array, use the enum converter
+                                let enumValuesAndMappings = <Array<string | [ string, string ]>>typeConversionDefinition;
+                                typeInstance[currentPropertyName] = this.ConvertEnum(inputObject[currentPropertyName], enumValuesAndMappings);
+                            }
+                            else  {
+                                // Attempt to use a custom conversion function from the 'objectTypeConversionDefinition' parameter
+                                let typeConversionFunction: ITypedObjectConversionFunction<any> = <ITypedObjectConversionFunction<any>>typeConversionDefinition;
+                                typeInstance[currentPropertyName] = typeConversionFunction.call(this, inputObject[currentPropertyName]);
+                            }
+                        }
+                        catch (error) {
+                            throw new Error(`Error attempting to validate and convert property '${currentPropertyName}':  ${error.message}`);
+                        }
                     }
                 }
             }
@@ -135,15 +152,45 @@ export class ContainerObjectTypeValidator {
      * @throws {Error} - Error attempting to validate and convert array element.
      */
     public ValidateAndConvertBasicTypeArray<T extends string | number | boolean | Date>(inputArray: any, elementType: JavascriptBasicType) : Array<T> {
-        if (Array.isArray(inputArray) === false)
-            throw new TypeError(`Parameter 'inputArray' is not an array.`);
+        this.CheckParameterIsArray("inputArray", inputArray);
     
         // TODO: Unfortunately because we can't determine the type of T at runtime (e.g. with typeof()) we can't confirm that T and parameter 'elementType' match up
         //   ...and can't use the '{ new(): T; }' technique used in ValidateAndConvertObjectArray() as this only seems to work for defined objects (not basic types)
-        //   so need to find a way to do this
+        //   so need to find a way to do this (and same for ValidateAndConvertBasicNullableTypeArray() below)
 
         let typedArray: T[] = [];
         let typeConversionFunction: ITypedObjectConversionFunction<any> = this.typeToConversionFunctionMap.get(elementType);
+        for (let currentInputElement of inputArray) {
+            try {
+                typedArray.push(typeConversionFunction.call(this, currentInputElement));
+            }
+            catch (error) {
+                throw new Error(`Error attempting to validate and convert array element '${currentInputElement.toString()}':  ${error.message}`);
+            }
+        }
+
+        return typedArray;
+    }
+
+    /**
+     * @name ValidateAndConvertBasicNullableTypeArray
+     * @desc Validates that an array of objects of type 'any' can be converted to an array of basic JavaScript types or null, and returns a typed array.
+     * 
+     * @template T - The type to convert the elements of the array to.
+     * @param {any} inputArray - The array to validate and convert.
+     * @param {JavascriptBasicType} elementType - The type of object to convert the elements of the array to.
+     * 
+     * @returns {Array<T>} - The typed array.
+     * 
+     * @throws {TypeError} - Parameter 'inputArray' is not and array.
+     * @throws {Error} - Error attempting to validate and convert array element.
+     */
+    public ValidateAndConvertBasicNullableTypeArray<T extends string | number | boolean | Date | null>(inputArray: any, elementType: JavascriptBasicType) : Array<T> {
+        // TODO: This method is almost identical to ValidateAndConvertBasicTypeArray()... refactor into common protected method
+        this.CheckParameterIsArray("inputArray", inputArray);
+
+        let typedArray: T[] = [];
+        let typeConversionFunction: ITypedObjectConversionFunction<any> = this.nullableTypeToConversionFunctionMap.get(elementType);
         for (let currentInputElement of inputArray) {
             try {
                 typedArray.push(typeConversionFunction.call(this, currentInputElement));
@@ -178,6 +225,24 @@ export class ContainerObjectTypeValidator {
     }
 
     /**
+     * @name ConvertNullableNumber
+     * @desc Converts an object of type 'any' to a number or null.
+
+     * @param {any} untypedNumber - An un-typed number or null value.
+     * 
+     * @returns {number | null} - The typed number or null.
+     * @throws {TypeError} - Parameter 'untypedNumber' is not of type 'string' or 'number'.
+     * @throws {Error} - Parameter 'untypedNumber' could not be converted to a number.
+     */
+    public ConvertNullableNumber(untypedNumber: any) : number | null {
+
+        if (untypedNumber === null)
+            return null;
+        else
+            return this.ConvertNumber(untypedNumber);
+    }
+
+    /**
      * @name ConvertBoolean
      * @desc Converts an object of type 'any' to a boolean.
 
@@ -205,6 +270,24 @@ export class ContainerObjectTypeValidator {
     }
 
     /**
+     * @name ConvertNullableBoolean
+     * @desc Converts an object of type 'any' to a boolean or null.
+
+     * @param {any} untypedBoolean - An un-typed boolean or null value.
+     * 
+     * @returns {boolean | null} - The typed boolean or null.
+     * @throws {TypeError} - Parameter 'untypedBoolean' is not of type 'string' or 'boolean'.
+     * @throws {Error} - Parameter 'untypedBoolean' could not be converted to a boolean.
+     */
+    public ConvertNullableBoolean(untypedBoolean: any) : boolean | null {
+
+        if (untypedBoolean === null)
+            return null;
+        else
+            return this.ConvertBoolean(untypedBoolean);
+    }
+
+    /**
      * @name ConvertString
      * @desc Converts an object of type 'any' to a string.
 
@@ -221,6 +304,23 @@ export class ContainerObjectTypeValidator {
             throw new TypeError(`Parameter 'untypedString' was expected to be of type '${JavaScriptStringConstants.StringType}', '${JavaScriptStringConstants.BooleanType}', or '${JavaScriptStringConstants.NumberType}' but was '${typeof(untypedString)}'.`);
 
         return untypedString.toString();
+    }
+
+    /**
+     * @name ConvertNullableString
+     * @desc Converts an object of type 'any' to a string or null.
+
+     * @param {any} untypedString - An un-typed string or null value.
+     * 
+     * @returns {string | null} - The typed string or null.
+     * @throws {TypeError} - Parameter 'untypedString' is not of type 'string', 'number' or 'boolean'.
+     */
+    public ConvertNullableString(untypedString: any) : string | null {
+
+        if (untypedString === null)
+            return null;
+        else
+            return this.ConvertString(untypedString);
     }
 
     /**
@@ -245,11 +345,29 @@ export class ContainerObjectTypeValidator {
     }
 
     /**
+     * @name ConvertNullableDate
+     * @desc Converts an object of type 'any' to a Date or null.
+
+     * @param {any} untypedDate - An un-typed date or null value.
+     * 
+     * @returns {Date | null} - The typed date or null.
+     * @throws {TypeError} - Parameter 'untypedDate' is not of type 'string' or 'object'.
+     * @throws {Error} - Parameter 'untypedDate' could not be converted to a Date.
+     */
+    public ConvertNullableDate(untypedDate: any) : Date | null {
+
+        if (untypedDate === null)
+            return null;
+        else
+            return this.ConvertDate(untypedDate);
+    }
+
+    /**
      * @name ConvertEnum
      * @desc Validates and converts an object of type 'any' to an enum value.
 
      * @param {any} untypedEnumValue - A un-typed enum value.
-     * @param {Array<string | [ string, string ]>} enumValuesAndMappings - A Union representing all the valid enum values.  Accepts either of the following types...
+     * @param {EnumTypeConversionDefinition} enumValuesAndMappings - A Union representing all the valid enum values.  Accepts either of the following types...
      *          Array<string> - All valid enum values, where the value to be passed in parameter 'untypedEnumValue' exactly matches the enum value in the array.
      *          Array<[ string, string ]> - All valid enum values, where the value to be passed in parameter must be mapped to the enum value.
      *            Item 1 of tuple contains the mapped value which should match the value in parameter 'untypedEnumValue'.
@@ -259,7 +377,7 @@ export class ContainerObjectTypeValidator {
      * @throws {Error} - Parameter 'enumValuesAndMappings' is an empty array.
      * @throws {Error} - Parameter 'untypedEnumValue' with could not be matched to an enum mapping value.
      */
-    public ConvertEnum(untypedEnumValue: any, enumValuesAndMappings: Array<string | [ string, string ]>) : string {
+    public ConvertEnum(untypedEnumValue: any, enumValuesAndMappings: EnumTypeConversionDefinition) : string {
         if (enumValuesAndMappings.length == 0)
             throw new Error("Parameter 'enumValuesAndMappings' cannot be an empty array.");
 
@@ -285,10 +403,19 @@ export class ContainerObjectTypeValidator {
         return enumValueMappings.get(untypedEnumValue.toString());
     }
 
-    protected InitializeTypeToConversionFunctionMap() : void {
-        this.typeToConversionFunctionMap.set(JavascriptBasicType.String, (untypedObject: any): any => { return this.ConvertString(untypedObject); })
-        this.typeToConversionFunctionMap.set(JavascriptBasicType.Number, (untypedObject: any): any => { return this.ConvertNumber(untypedObject); })
-        this.typeToConversionFunctionMap.set(JavascriptBasicType.Boolean, (untypedObject: any): any => { return this.ConvertBoolean(untypedObject); })
-        this.typeToConversionFunctionMap.set(JavascriptBasicType.Date, (untypedObject: any): any => { return this.ConvertDate(untypedObject); })
+    protected InitializeTypeToConversionFunctionMaps() : void {
+        this.typeToConversionFunctionMap.set(JavascriptBasicType.String, (untypedObject: any): any => { return this.ConvertString(untypedObject); });
+        this.typeToConversionFunctionMap.set(JavascriptBasicType.Number, (untypedObject: any): any => { return this.ConvertNumber(untypedObject); });
+        this.typeToConversionFunctionMap.set(JavascriptBasicType.Boolean, (untypedObject: any): any => { return this.ConvertBoolean(untypedObject); });
+        this.typeToConversionFunctionMap.set(JavascriptBasicType.Date, (untypedObject: any): any => { return this.ConvertDate(untypedObject); });
+        this.nullableTypeToConversionFunctionMap.set(JavascriptBasicType.String, (untypedObject: any): any => { return this.ConvertNullableString(untypedObject); });
+        this.nullableTypeToConversionFunctionMap.set(JavascriptBasicType.Number, (untypedObject: any): any => { return this.ConvertNullableNumber(untypedObject); });
+        this.nullableTypeToConversionFunctionMap.set(JavascriptBasicType.Boolean, (untypedObject: any): any => { return this.ConvertNullableBoolean(untypedObject); });
+        this.nullableTypeToConversionFunctionMap.set(JavascriptBasicType.Date, (untypedObject: any): any => { return this.ConvertNullableDate(untypedObject); });
+    }
+
+    protected CheckParameterIsArray(parameterName: string, parameterValue: any) : void {
+        if (Array.isArray(parameterValue) === false)
+            throw new TypeError(`Parameter '${parameterName}' is not an array.`);
     }
 }

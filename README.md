@@ -39,6 +39,8 @@ The purpose of the ContainerObjectTypeValidator class is to provide runtime type
 * Identifying incorrectly-typed and missing data at the perimeter of your application before objects are used internally 
 * Throwing clear, detailed errors as soon as any incorrectly-typed and missing data issues are detected
 
+ContainerObjectTypeValidator might also be useful when consuming APIs endpoints with a lot of unused properties/data.  E.g. an endpoint returning a company employee might include basic personal information, location and department info, boss and subordinate details, Active Directory or network properties, etc, etc.  If you only need to consume a small subset of this data, ContainerObjectTypeValidator can be used to validate and retrieve a limited number of fields/properties (i.e. it will only attempt to validate and convert properties defined in the local container/model class)... i.e. only the fields/properties you actually need.
+
 #### In Use
 
 The below examples and associated container/model class definitions are available in file [samples.ts](src/samples.ts).
@@ -82,7 +84,7 @@ console.log(returnedDateArray);
 
 ##### Validating TypeScript enums...
 
-Enums are tricky because whilst you can use the 'keyof typeof' statement to retrieve the values of a specifid enum at runtime, I haven't found a way to do the same for generic enum type variables (i.e. the 'T' in a method signature like ConvertEnum&lt;T&gt;()).  Hence ContainerObjectTypeValidator has a method ConvertEnum(defined as follows...)
+Enums are tricky because whilst you can use the 'keyof typeof' statement to retrieve the values of a specifid enum at runtime, I haven't found a way to do the same for generic enum type variables (i.e. the 'T' in a method signature like ConvertEnum&lt;T&gt;()).  Hence ContainerObjectTypeValidator has a method ConvertEnum() defined as follows...
 
 ```
 public ConvertEnum(untypedEnumValue: any, enumValuesAndMappings: Array<string | [ string, string ]>) : string
@@ -339,21 +341,21 @@ untypedObject =
     ]
 };
 
-let stockDeserializationDefinition = new ObjectTypeConversionDefinition(
+let stockTypeConversionDefinition = new ObjectTypeConversionDefinition(
     // Parameter 'propertyDefinitions'
     <Iterable<[string, TypeConversionDefinition]>>
     [
         [ "CompanyName", JavascriptBasicType.String ], 
         [ "Ticker", JavascriptBasicType.String ],
         [ "Prices", <ITypedObjectConversionFunction<Array<StockPrice>>>((untypedObject: any) : Array<StockPrice> => {
-                        let stockPriceDeserializationDefinition = new ObjectTypeConversionDefinition(
+                        let stockPriceTypeConversionDefinition = new ObjectTypeConversionDefinition(
                             <Iterable<[string, TypeConversionDefinition]>>
                             [
                                 [ "Date", JavascriptBasicType.Date ], 
                                 [ "Price", JavascriptBasicType.Number ]
                             ]
                         );
-                        return containerObjectTypeValidator.ValidateAndConvertObjectArray<StockPrice>(untypedObject, StockPrice, stockPriceDeserializationDefinition);
+                        return containerObjectTypeValidator.ValidateAndConvertObjectArray<StockPrice>(untypedObject, StockPrice, stockPriceTypeConversionDefinition);
                     })
         ] 
     ]
@@ -362,7 +364,7 @@ let stockDeserializationDefinition = new ObjectTypeConversionDefinition(
 let returnedStock: Stock = containerObjectTypeValidator.ValidateAndConvertObject<Stock>(
     untypedObject, 
     Stock, 
-    stockDeserializationDefinition
+    stockTypeConversionDefinition
 );
 console.log(returnedStock);  
 ```
@@ -397,10 +399,131 @@ console.log(returnedStock);
     }
 
 
+#### Handling nullable properties...
+
+The ObjectTypeConversionDefinition class can support object properties which may be set to null, via the 'nullableProperties' parameter on its constructor...
+
+```
+storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
+    // 'propertyDefinitions' parameter
+    <Iterable<[string, TypeConversionDefinition]>>
+    [
+        [ "DisplayName", JavascriptBasicType.String ], 
+        [ "PricePerUnit", JavascriptBasicType.Number ], 
+        [ "Unit", 
+            [ 
+                "Bunch", "Piece", "Kilogram", "Pack"  
+            ] 
+        ], 
+        [ "DateAdded", JavascriptBasicType.Date ]
+    ], 
+    // 'excludeProperties' parameter
+    <Array<string>>[], 
+    // 'nullableProperties' parameter
+    <Array<string>>[
+        "DateAdded"
+    ]
+);
+
+untypedObject = {
+    DisplayName: "Onion", 
+    PricePerUnit: 380, 
+    Unit: "Kilogram" , 
+    DateAdded: null
+};
+
+let returnedStoreCatalogueItem2: StoreCatalogueItemWithNullableProperty = containerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItemWithNullableProperty>(
+    untypedObject, 
+    StoreCatalogueItemWithNullableProperty, 
+    storeCatalogueItemObjectTypeConversionDefinition
+);
+```
+
+...outputs...
+
+    {
+        "displayName": "Onion",
+        "pricePerUnit": 380,
+        "unit": "Kilogram",
+        "dateAdded": null
+    }
+
+
+#### Including the type validation/conversion definition within a container/model class...
+
+If you consider that the definition of a container/model class, and the type validation rules for that class to be concerns that can be mixed together, you can include an instance of ObjectTypeConversionDefinition as a static property within your container/model class...
+
+```
+class StockWithTypeConversionDefinition {
+
+    public static TypeConversionDefinition = new ObjectTypeConversionDefinition(
+        // Parameter 'propertyDefinitions'
+        <Iterable<[string, TypeConversionDefinition]>>
+        [
+            [ "CompanyName", JavascriptBasicType.String ], 
+            [ "Ticker", JavascriptBasicType.String ],
+            [ "Prices", <ITypedObjectConversionFunction<Array<StockPrice>>>((untypedObject: any) : Array<StockPrice> => {
+                            let stockPriceTypeConversionDefinition = new ObjectTypeConversionDefinition(
+                                <Iterable<[string, TypeConversionDefinition]>>
+                                [
+                                    [ "Date", JavascriptBasicType.Date ], 
+                                    [ "Price", JavascriptBasicType.Number ]
+                                ]
+                            );
+                            return new ContainerObjectTypeValidator().ValidateAndConvertObjectArray<StockPrice>(untypedObject, StockPrice, stockPriceTypeConversionDefinition);
+                        })
+            ] 
+        ]
+    );
+
+    protected companyName: string;
+    protected ticker: string;
+    protected prices: Array<StockPrice>
+    
+    get CompanyName(): string {
+        return this.companyName;
+    }
+
+    set CompanyName(value: string) {
+        this.companyName = value;
+    }
+
+    get Ticker(): string {
+        return this.ticker;
+    }
+
+    set Ticker(value: string) {
+        this.ticker = value;
+    }
+
+    get Prices(): Array<StockPrice> {
+        return this.prices;
+    }
+
+    set Prices(value: Array<StockPrice>) {
+        this.prices = value;
+    }
+}
+```
+
+...this makes the code to perform the type validation/conversion more succinct...
+
+```
+let returnedStock2: StockWithTypeConversionDefinition = containerObjectTypeValidator.ValidateAndConvertObject<StockWithTypeConversionDefinition>(
+    untypedObject, 
+    StockWithTypeConversionDefinition, 
+    StockWithTypeConversionDefinition.TypeConversionDefinition
+);
+console.log(returnedStock2); 
+```
+
+
 ## Future Enhancements
-- Support for TypeScript [nullable types](https://www.typescriptlang.org/docs/handbook/advanced-types.html#nullable-types)
+- Document ContainerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray() and other 'Nullable' methods
+- Greater use of Type aliases
 - Support for the JavaScript 'BigInt' type
 - Test (and possibly implement) support for recursive objects like tree nodes
+- Test with --strictNullChecks turned on
 
 
 ## Release History

@@ -5,7 +5,7 @@ Utility classes for TypeScript web applications.
 
 ## Contents
 
-### ContainerObjectTypeValidator
+### :: ContainerObjectTypeValidator ::
 
 TypeScript allows un-typed objects returned from API calls to be simply assigned to strongly typed objects.  E.g for the class StoreCatalogueItem...
 
@@ -41,11 +41,11 @@ The purpose of the ContainerObjectTypeValidator class is to provide runtime type
 
 ContainerObjectTypeValidator might also be useful when consuming APIs endpoints with a lot of unused properties/data.  E.g. an endpoint returning a company employee might include basic personal information, location and department info, boss and subordinate details, Active Directory or network properties, etc, etc.  If you only need to consume a small subset of this data, ContainerObjectTypeValidator can be used to validate and retrieve a limited number of fields/properties (i.e. it will only attempt to validate and convert properties defined in the local container/model class)... i.e. only the fields/properties you actually need.
 
-#### In Use
+### In Use
 
 The below examples and associated container/model class definitions are available in file [samples.ts](src/samples.ts).
 
-##### Validating and converting Javascript basic types and dates...
+#### Validating and converting Javascript basic types and dates...
 
 ```
 let containerObjectTypeValidator: ContainerObjectTypeValidator = new ContainerObjectTypeValidator();
@@ -63,7 +63,7 @@ console.log(returnedDate);
     false 
     Thu Nov 14 2019 11:44:00 GMT+0900 
 
-##### Arrays of Javascript basic types and dates...
+#### Arrays of Javascript basic types and dates...
 
 ```
 let untypedNumberArray = [ "123", "456", "789" ];
@@ -82,7 +82,7 @@ console.log(returnedDateArray);
     [ true, false, true ]
     [ Sun Nov 12 2017 09:00:00 GMT+0900, Sat Oct 13 2018 09:00:00 GMT+0900, Sat Sep 14 2019 09:00:00 GMT+0900 ]
 
-##### Validating TypeScript enums...
+#### Validating TypeScript enums...
 
 Enums are tricky because whilst you can use the 'keyof typeof' statement to retrieve the values of a specifid enum at runtime, I haven't found a way to do the same for generic enum type variables (i.e. the 'T' in a method signature like ConvertEnum&lt;T&gt;()).  Hence ContainerObjectTypeValidator has a method ConvertEnum() defined as follows...
 
@@ -96,7 +96,7 @@ public ConvertEnum(untypedEnumValue: any, enumValuesAndMappings: Array<string | 
 
 ```
 let untypedEnum = "Pack";
-let returnedEnum: UnitOfSale = <UnitOfSale>containerObjectTypeValidator.ConvertEnum(untypedEnum, [ "Bunch", "Piece", "Kilogram", "Pack" ]);
+let returnedEnum = <UnitOfSale>containerObjectTypeValidator.ConvertEnum(untypedEnum, [ "Bunch", "Piece", "Kilogram", "Pack" ]);
 console.log(returnedEnum);
 // Outputs...
 //   Pack
@@ -110,7 +110,7 @@ console.log(returnedEnum);
 //   Piece
 ```
 
-##### Validating and converting simple container/model objects...
+#### Validating and converting simple container/model objects...
 
 ```
 let untypedObject: any = {
@@ -398,8 +398,52 @@ console.log(returnedStock);
         ]
     }
 
+#### Validating and converting nullable types...
 
-#### Handling nullable properties...
+TypeScript [nullable types](https://www.typescriptlang.org/docs/handbook/advanced-types.html#nullable-types) are supported.  To ensure proper compatability with the 'strictNullChecks' compiler option, validation/conversion of nullable JavaScript basic types is performed by separate methods to the equivalent non-nullable types (e.g. ConvertNullableNumber(), ConvertNullableBoolean(), etc...)...
+
+```
+let inputValue: any = null;
+let returnedNullableNumber: number | null = containerObjectTypeValidator.ConvertNullableNumber(inputValue);
+console.log(returnedNullableNumber);
+// Outputs...
+//   null 
+inputValue = "123";
+returnedNullableNumber = containerObjectTypeValidator.ConvertNullableNumber(inputValue);
+console.log(returnedNullableNumber);
+// Outputs...
+//   123 
+
+inputValue = null;
+let returnedNullableDate: Date | null = containerObjectTypeValidator.ConvertNullableDate(inputValue);
+console.log(returnedNullableDate);
+// Outputs...
+//   null 
+inputValue = "2019-10-21";
+returnedNullableDate = containerObjectTypeValidator.ConvertNullableDate(inputValue);
+console.log(returnedNullableDate);
+// Outputs...
+//   Date Mon Oct 21 2019 09:00:00 GMT+0900
+```
+
+
+#### Validating and converting arrays of nullable types...
+
+```
+let inputArray: Array<any> = [ "true", null, "false" ];
+let returnedNullableBooleanArray: Array<boolean | null> = containerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray<boolean>(inputArray, JavascriptBasicType.Boolean);
+console.log(returnedNullableBooleanArray);
+// Outputs...
+//   [ true, null, false ]
+
+inputArray = [ "Red", null, null, "Black" ];
+let returnedNullableStringArray: Array<string | null> = containerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray<string>(inputArray, JavascriptBasicType.String);
+console.log(returnedNullableStringArray);
+// Outputs...
+//   [ "Red", null, null, "Black" ]
+```
+
+#### Handling nullable object properties...
 
 The ObjectTypeConversionDefinition class can support object properties which may be set to null, via the 'nullableProperties' parameter on its constructor...
 
@@ -447,7 +491,6 @@ let returnedStoreCatalogueItem2: StoreCatalogueItemWithNullableProperty = contai
         "unit": "Kilogram",
         "dateAdded": null
     }
-
 
 #### Including the type validation/conversion definition within a container/model class...
 
@@ -519,11 +562,9 @@ console.log(returnedStock2);
 
 
 ## Future Enhancements
-- Document ContainerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray() and other 'Nullable' methods
 - Greater use of Type aliases
 - Support for the JavaScript 'BigInt' type
 - Test (and possibly implement) support for recursive objects like tree nodes
-- Test with --strictNullChecks turned on
 
 
 ## Release History

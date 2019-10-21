@@ -82,7 +82,7 @@ export class ContainerObjectTypeValidator {
                                 if (this.typeToConversionFunctionMap.has(<JavascriptBasicType>typeConversionDefinition) === false)
                                     throw new Error(`Conversion of basic JavaScript type not supported.`);
     
-                                let typeConversionFunction: ITypedObjectConversionFunction<any> = this.typeToConversionFunctionMap.get(<JavascriptBasicType>typeConversionDefinition);
+                                let typeConversionFunction = <ITypedObjectConversionFunction<any>>this.typeToConversionFunctionMap.get(<JavascriptBasicType>typeConversionDefinition);
                                 typeInstance[currentPropertyName] = typeConversionFunction.call(this, inputObject[currentPropertyName]);
                             }
                             else if (Array.isArray(typeConversionDefinition) === true) {
@@ -92,7 +92,7 @@ export class ContainerObjectTypeValidator {
                             }
                             else  {
                                 // Attempt to use a custom conversion function from the 'objectTypeConversionDefinition' parameter
-                                let typeConversionFunction: ITypedObjectConversionFunction<any> = <ITypedObjectConversionFunction<any>>typeConversionDefinition;
+                                let typeConversionFunction = <ITypedObjectConversionFunction<any>>typeConversionDefinition;
                                 typeInstance[currentPropertyName] = typeConversionFunction.call(this, inputObject[currentPropertyName]);
                             }
                         }
@@ -159,7 +159,7 @@ export class ContainerObjectTypeValidator {
         //   so need to find a way to do this (and same for ValidateAndConvertBasicNullableTypeArray() below)
 
         let typedArray: T[] = [];
-        let typeConversionFunction: ITypedObjectConversionFunction<any> = this.typeToConversionFunctionMap.get(elementType);
+        let typeConversionFunction = <ITypedObjectConversionFunction<any>>this.typeToConversionFunctionMap.get(elementType);
         for (let currentInputElement of inputArray) {
             try {
                 typedArray.push(typeConversionFunction.call(this, currentInputElement));
@@ -190,7 +190,7 @@ export class ContainerObjectTypeValidator {
         this.CheckParameterIsArray("inputArray", inputArray);
 
         let typedArray: T[] = [];
-        let typeConversionFunction: ITypedObjectConversionFunction<any> = this.nullableTypeToConversionFunctionMap.get(elementType);
+        let typeConversionFunction = <ITypedObjectConversionFunction<any>>this.nullableTypeToConversionFunctionMap.get(elementType);
         for (let currentInputElement of inputArray) {
             try {
                 typedArray.push(typeConversionFunction.call(this, currentInputElement));
@@ -400,7 +400,7 @@ export class ContainerObjectTypeValidator {
         if (enumValueMappings.has(untypedEnumValue.toString()) === false)
             throw new Error(`Parameter 'untypedEnumValue' with value '${untypedEnumValue.toString()}' could not be matched to an enum mapping value in '${Array.from( enumValueMappings.keys() )}'.`);
 
-        return enumValueMappings.get(untypedEnumValue.toString());
+        return <string>enumValueMappings.get(untypedEnumValue.toString());
     }
 
     protected InitializeTypeToConversionFunctionMaps() : void {

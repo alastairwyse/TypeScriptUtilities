@@ -415,7 +415,7 @@ export class Samples {
         // Converting Enums...
         // -------------------
         let untypedEnum = "Pack";
-        let returnedEnum: UnitOfSale = <UnitOfSale>containerObjectTypeValidator.ConvertEnum(untypedEnum, [ "Bunch", "Piece", "Kilogram", "Pack" ]);
+        let returnedEnum = <UnitOfSale>containerObjectTypeValidator.ConvertEnum(untypedEnum, [ "Bunch", "Piece", "Kilogram", "Pack" ]);
         console.log(returnedEnum);
         // Prints...
         //   Pack
@@ -515,6 +515,48 @@ export class Samples {
         //         }
         //     ]
         // }
+
+
+        // -------------------------------------------
+        // Validating and converting nullable types...
+        // -------------------------------------------
+        let inputValue: any = null;
+        let returnedNullableNumber: number | null = containerObjectTypeValidator.ConvertNullableNumber(inputValue);
+        console.log(returnedNullableNumber);
+        // Prints...
+        //   null 
+        inputValue = "123";
+        returnedNullableNumber = containerObjectTypeValidator.ConvertNullableNumber(inputValue);
+        console.log(returnedNullableNumber);
+        // Prints...
+        //   123 
+
+        inputValue = null;
+        let returnedNullableDate: Date | null = containerObjectTypeValidator.ConvertNullableDate(inputValue);
+        console.log(returnedNullableDate);
+        // Prints...
+        //   null 
+        inputValue = "2019-10-21";
+        returnedNullableDate = containerObjectTypeValidator.ConvertNullableDate(inputValue);
+        console.log(returnedNullableDate);
+        // Prints...
+        //   Date Mon Oct 21 2019 09:00:00 GMT+0900
+
+
+        // -----------------------------------------------------
+        // Validating and converting arrays of nullable types...
+        // -----------------------------------------------------
+        let inputArray: Array<any> = [ "true", null, "false" ];
+        let returnedNullableBooleanArray: Array<boolean | null> = containerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray<boolean>(inputArray, JavascriptBasicType.Boolean);
+        console.log(returnedNullableBooleanArray);
+        // Prints...
+        //   [ true, null, false ]
+
+        inputArray = [ "Red", null, null, "Black" ];
+        let returnedNullableStringArray: Array<string | null> = containerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray<string>(inputArray, JavascriptBasicType.String);
+        console.log(returnedNullableStringArray);
+        // Prints...
+        //   [ "Red", null, null, "Black" ]
 
 
         // -------------------------------

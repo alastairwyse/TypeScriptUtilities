@@ -129,7 +129,7 @@ export class ObjectTypeConversionDefinition {
         if (this.propertyDefinitions.has(propertyName) === false)
             throw new Error(`No validation/conversion definition exists for property name '${propertyName}'.`);
 
-        return this.propertyDefinitions.get(propertyName);
+        return <TypeConversionDefinition>this.propertyDefinitions.get(propertyName);
     }
 
     /**

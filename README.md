@@ -164,8 +164,8 @@ console.log(returnedStoreCatalogueItem);
     <td>This is a <a href="https://www.typescriptlang.org/docs/handbook/interfaces.html#function-types">function type interface</a> which is called/executed during the validation conversion (i.e. can be used to define conversion for objects, objects within objects, etc...)</td>
   </tr>
   <tr>
-    <td valign="top">Array<string | [ string, string ]></td>
-    <td>Treats the specified properties as a TypeScript enum (see example above)</td>
+    <td valign="top">Array&lt;string | [ string, string ]&gt;</td>
+    <td>Treats the specified properties as a TypeScript enum (see example above).  Note this is type-aliased as 'EnumTypeConversionDefinition'.</td>
   </tr>
 </table>
 

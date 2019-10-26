@@ -9,7 +9,7 @@ Utility classes for TypeScript web applications.
 
 TypeScript allows un-typed objects returned from API calls to be simply assigned to strongly typed objects.  E.g for the class StoreCatalogueItem...
 
-```
+```typescript
 class StoreCatalogueItem {
     public displayName: string;
     public pricePerUnit: number;
@@ -19,7 +19,7 @@ class StoreCatalogueItem {
 
 ...the following code simulates reading a StoreCatalogueItem instance via the XMLHttpRequest object...
 
-```
+```typescript
 let serializedObject: string = "{ \"displayName\": \"Onion\",  \"pricePerUnit\": \"abc\" }"; 
 let untypedObject: any = JSON.parse(serializedObject);
 let myCatalogueItem: StoreCatalogueItem = untypedObject;
@@ -47,7 +47,7 @@ The below examples and associated container/model class definitions are availabl
 
 #### Validating and converting Javascript basic types and dates...
 
-```
+```typescript
 let containerObjectTypeValidator: ContainerObjectTypeValidator = new ContainerObjectTypeValidator();
 let returnedNumber: number = containerObjectTypeValidator.ConvertNumber("123");
 let returnedBoolean: boolean = containerObjectTypeValidator.ConvertBoolean("false");
@@ -65,7 +65,7 @@ console.log(returnedDate);
 
 #### Arrays of Javascript basic types and dates...
 
-```
+```typescript
 let untypedNumberArray = [ "123", "456", "789" ];
 let returnedNumberArray: Array<number> = containerObjectTypeValidator.ValidateAndConvertBasicTypeArray<number>(untypedNumberArray, JavascriptBasicType.Number);
 let untypedBooleanArray = [ "true", "false", "true" ];
@@ -84,17 +84,17 @@ console.log(returnedDateArray);
 
 #### Validating TypeScript enums...
 
-Enums are tricky because whilst you can use the 'keyof typeof' statement to retrieve the values of a specifid enum at runtime, I haven't found a way to do the same for generic enum type variables (i.e. the 'T' in a method signature like ConvertEnum&lt;T&gt;()).  Hence ContainerObjectTypeValidator has a method ConvertEnum() defined as follows...
+Enums are tricky because whilst you can use the 'keyof typeof' statement to retrieve the values of a specified enum at runtime, I haven't found a way to do the same for generic enum type variables (i.e. the 'T' in a method signature like ConvertEnum&lt;T&gt;()).  Hence ContainerObjectTypeValidator has a method ConvertEnum() defined as follows...
 
-```
-public ConvertEnum(untypedEnumValue: any, enumValuesAndMappings: Array<string | [ string, string ]>) : string
+```typescript
+public ConvertEnum(untypedEnumValue: any, enumValuesAndMappings: EnumTypeConversionDefinition) : string
 ```
 
-...which requires the valid enum values to be provided in parameter 'enumValuesAndMappings'.  The parameter is a TypeScript [Union](https://www.typescriptlang.org/docs/handbook/advanced-types.html#union-types) which can be either...
+...which requires the valid enum values to be provided in parameter 'enumValuesAndMappings'.  This parameter is a TypeScript [Union](https://www.typescriptlang.org/docs/handbook/advanced-types.html#union-types) which can be either...
 * an Array&lt;string&gt; where the value of 'untypedEnumValue' is expected to exactly match the enum value defined in TypeScript, OR
 * an Array&lt;[ string, string ]&gt; where the value of 'untypedEnumValue' needs to be mapped to the enum value defined in TypeScript (see example below)
 
-```
+```typescript
 let untypedEnum = "Pack";
 let returnedEnum = <UnitOfSale>containerObjectTypeValidator.ConvertEnum(untypedEnum, [ "Bunch", "Piece", "Kilogram", "Pack" ]);
 console.log(returnedEnum);
@@ -102,7 +102,7 @@ console.log(returnedEnum);
 //   Pack
 ```
 
-```
+```typescript
 untypedEnum = "1";
 returnedEnum = <UnitOfSale>containerObjectTypeValidator.ConvertEnum(untypedEnum, [ [ "0", "Bunch" ], [ "1", "Piece" ], [ "2", "Kilogram" ], [ "3", "Pack" ] ]);
 console.log(returnedEnum);
@@ -112,7 +112,7 @@ console.log(returnedEnum);
 
 #### Validating and converting simple container/model objects...
 
-```
+```typescript
 let untypedObject: any = {
     DisplayName: "Onion", 
     PricePerUnit: 380, 
@@ -171,7 +171,7 @@ console.log(returnedStoreCatalogueItem);
 
 #### Failure to valdiate/convert throws a descriptive and detailed error...
 
-```
+```typescript
 untypedObject = {
     DisplayName: "Onion", 
     PricePerUnit: "abc",  // Error - not a number
@@ -184,11 +184,11 @@ returnedStoreCatalogueItem = containerObjectTypeValidator.ValidateAndConvertObje
 );
 ```
 
-... throws error...
+...throws error...
 
     'Error attempting to validate and convert property 'PricePerUnit':  Parameter 'untypedNumber' with value 'abc' could not be converted to a number.'
 
-```
+```typescript
 untypedObject = {
     DisplayName: "Onion", 
     PricePerUnit: 380, 
@@ -201,13 +201,13 @@ returnedStoreCatalogueItem = containerObjectTypeValidator.ValidateAndConvertObje
 );
 ```
 
-... throws error...
+...throws error...
 
     'Error attempting to validate and convert property 'Unit':  Parameter 'untypedEnumValue' with value 'Pound' could not be matched to an enum mapping value in 'Bunch,Piece,Kilogram,Pack'.'
 
 #### Fields in the local class definition can be excluded from validation/conversion...
 
-```
+```typescript
 storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
     // 'propertyDefinitions' parameter
     <Iterable<[string, TypeConversionDefinition]>>
@@ -249,7 +249,7 @@ console.log(returnedStoreCatalogueItem);
 
 #### Validating and converting arrays of objects...
 
-```
+```typescript
 let untypedArray: any = [
     {
         DisplayName: "Onion", 
@@ -312,7 +312,7 @@ console.log(returnedArray);
 
 E.g. for the Stock class which contains nested class StockPrice (again see [samples.ts](src/samples.ts) for their definitions)...
 
-```
+```typescript
 untypedObject = 
 {
     "CompanyName": "BHP Billiton Limited",
@@ -402,7 +402,7 @@ console.log(returnedStock);
 
 TypeScript [nullable types](https://www.typescriptlang.org/docs/handbook/advanced-types.html#nullable-types) are supported.  To ensure proper compatability with the 'strictNullChecks' compiler option, validation/conversion of nullable JavaScript basic types is performed by separate methods to the equivalent non-nullable types (e.g. ConvertNullableNumber(), ConvertNullableBoolean(), etc...)...
 
-```
+```typescript
 let inputValue: any = null;
 let returnedNullableNumber: number | null = containerObjectTypeValidator.ConvertNullableNumber(inputValue);
 console.log(returnedNullableNumber);
@@ -429,7 +429,7 @@ console.log(returnedNullableDate);
 
 #### Validating and converting arrays of nullable types...
 
-```
+```typescript
 let inputArray: Array<any> = [ "true", null, "false" ];
 let returnedNullableBooleanArray: Array<boolean | null> = containerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray<boolean>(inputArray, JavascriptBasicType.Boolean);
 console.log(returnedNullableBooleanArray);
@@ -447,7 +447,7 @@ console.log(returnedNullableStringArray);
 
 The ObjectTypeConversionDefinition class can support object properties which may be set to null, via the 'nullableProperties' parameter on its constructor...
 
-```
+```typescript
 storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
     // 'propertyDefinitions' parameter
     <Iterable<[string, TypeConversionDefinition]>>
@@ -496,7 +496,7 @@ let returnedStoreCatalogueItem2: StoreCatalogueItemWithNullableProperty = contai
 
 If you consider that the definition of a container/model class, and the type validation rules for that class to be concerns that can be mixed together, you can include an instance of ObjectTypeConversionDefinition as a static property within your container/model class...
 
-```
+```typescript
 class StockWithTypeConversionDefinition {
 
     public static TypeConversionDefinition = new ObjectTypeConversionDefinition(
@@ -551,7 +551,7 @@ class StockWithTypeConversionDefinition {
 
 ...this makes the code to perform the type validation/conversion more succinct...
 
-```
+```typescript
 let returnedStock2: StockWithTypeConversionDefinition = containerObjectTypeValidator.ValidateAndConvertObject<StockWithTypeConversionDefinition>(
     untypedObject, 
     StockWithTypeConversionDefinition, 

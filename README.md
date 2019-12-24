@@ -560,11 +560,212 @@ let returnedStock2: StockWithTypeConversionDefinition = containerObjectTypeValid
 console.log(returnedStock2); 
 ```
 
+### :: ServiceLayerInterface ::
+
+The original goal of this class was to create a wrapper around [Aurelia's](https://aurelia.io/) [HttpClient](https://aurelia.io/docs/plugins/http-services#aurelia-http-client) class for calling REST-based application service layers which return JSON content.  The Aurelia HttpClient is quite good, and definitely more immediately useable than the XMLHttpRequest object.  However, one area where it could be better is with error handling... different TCP/HTTP errors are expressed through different combinations of the 'responseType', 'statusCode', and 'isSuccess' properties of the returned HttpResponseMessage class.  The ServiceLayerInterface class consolidates (hopefully) all the things that could go wrong in a call to a service layer, into enum ServiceCallErrorType and returns this along with a detailed error message.  The ServiceCallErrorType enum values (and associated meanings) are...
+
+<table>
+  <tr>
+    <td><b>Enum Value</b></td>
+    <td><b>Meaning</b></td>
+  </tr>
+  <tr>
+    <td valign="top">ConnectionFailed</td>
+    <td>A connection could not be established (e.g. because of incorrect URL, or specified port closed)</td>
+  </tr>
+  <tr>
+    <td valign="top">Timeout</td>
+    <td>A connection could not be established or response was not received within the specified timeout period</td>
+  </tr>
+  <tr>
+    <td valign="top">NonSuccessHttpStatus</td>
+    <td>The service returned a status indicating non-success</td>
+  </tr>
+  <tr>
+    <td valign="top">UnhandledHttpContentType</td>
+    <td>The call returned an unhandled HTTP content type</td>
+  </tr>
+  <tr>
+    <td valign="top">UnknownError</td>
+    <td>An unknown or unexpected error occurred</td>
+  </tr>
+</table>
+
+### In Use
+
+#### Success case...
+
+```typescript
+// Create the prefix/base URL for service layer calls
+let urlPrefix: HttpUrlPrefixBuilder = new HttpUrlPrefixBuilder(UrlScheme.Http, "localhost", 51499, "api/");
+// Create the Aurelia HttpClient wrapper
+let aureliaHttpClient = new AureliaHttpClient();
+let serviceLayerInterface: ServiceLayerInterface = new ServiceLayerInterface(
+    urlPrefix, 
+    2000,  // default timeout
+    aureliaHttpClient
+);
+
+serviceLayerInterface.CallServiceLayer(
+    new HttpUrlPathAndQueryBuilder("CatalogueItems/"),  // URL suffix
+    HttpRequestMethod.Get,  // HTTP method
+    null,  // message body
+    HttpContentType.Application_Json,  // message body content type
+    5000  // timeout (overrides the default if specified)
+)
+.then((result: ServiceLayerCallResult) => {
+    console.log("Call was successful...");
+    console.log(result.Content);
+})
+.catch((result: ServiceLayerCallResult) => {
+    console.log("Call failed...");
+    console.log("Error type: " + result.ErrorType);
+    console.log("Error message: " + result.SystemErrorMessage);
+});
+```
+
+...outputs...
+
+    Call was successful...
+    {
+        "DisplayName": "Bananas",
+        "PricePerUnit": 450,
+        "Unit": 2
+    },
+    {
+        "DisplayName": "Carrots",
+        "PricePerUnit": 200,
+        "Unit": 2
+    },
+    {
+        "DisplayName": "Watermelons",
+        "PricePerUnit": 450,
+        "Unit": 1
+    },
+    (etc...)
+
+#### Failure case (incorrect URL suffix resulting in 404)...
+
+```typescript
+serviceLayerInterface.CallServiceLayer(
+    new HttpUrlPathAndQueryBuilder("CatalogueItemsz/"),  // URL suffix (incorrect)
+    HttpRequestMethod.Get,  // HTTP method
+    null,  // message body
+    HttpContentType.Application_Json,  // message body content type
+    5000  // timeout (overrides the default if specified)
+)
+.then((result: ServiceLayerCallResult) => {
+    console.log("Call was successful...");
+    console.log(result.Content);
+})
+.catch((result: ServiceLayerCallResult) => {
+    console.log("Call failed...");
+    console.log("Error type: " + result.ErrorType);
+    console.log("Error message: " + result.SystemErrorMessage);
+});
+```
+
+...outputs...
+
+    Call failed...
+    Error type: NonSuccessHttpStatus
+    Error message: Response returned non-success HTTP status code 404 indicating 'Not Found' status calling URL 'http://localhost:51499/api/CatalogueItemsz/'.
+
+#### Failure case (incorrect TCP port resulting in failure to connect)...
+
+```typescript
+// Create the prefix/base URL for service layer calls (with wrong port)
+let urlPrefix: HttpUrlPrefixBuilder = new HttpUrlPrefixBuilder(UrlScheme.Http, "localhost", 51490, "api/");
+// Create the Aurelia HttpClient wrapper
+let aureliaHttpClient = new AureliaHttpClient();
+let serviceLayerInterface: ServiceLayerInterface = new ServiceLayerInterface(
+    urlPrefix, 
+    2000,  // default timeout
+    aureliaHttpClient
+);
+
+serviceLayerInterface.CallServiceLayer(
+    new HttpUrlPathAndQueryBuilder("CatalogueItems/"),  // URL suffix
+    HttpRequestMethod.Get,  // HTTP method
+    null,  // message body
+    HttpContentType.Application_Json,  // message body content type
+    5000  // timeout (overrides the default if specified)
+)
+.then((result: ServiceLayerCallResult) => {
+    console.log("Call was successful...");
+    console.log(result.Content);
+})
+.catch((result: ServiceLayerCallResult) => {
+    console.log("Call failed...");
+    console.log("Error type: " + result.ErrorType);
+    console.log("Error message: " + result.SystemErrorMessage);
+});
+```
+
+...outputs...
+
+    Call failed...
+    Error type: ConnectionFailed 
+    Error message: Failed to connect to URL 'http://localhost:51490/api/CatalogueItems/'.
+
+#### Contents of the ServiceLayerCallResult class...
+
+The Call() method returns a Promise which resolves to a ServiceLayerCallResult class which contains details of the results of the service layer call...
+
+```typescript
+serviceLayerInterface.CallServiceLayer(
+    new HttpUrlPathAndQueryBuilder("CatalogueItemsz/"),  // URL suffix (incorrect)
+    HttpRequestMethod.Get,  // HTTP method
+    null,  // message body
+    HttpContentType.Application_Json,  // message body content type
+    5000  // timeout (overrides the default if specified)
+)
+.then((result: ServiceLayerCallResult) => {
+    console.log("Call was successful...");
+    console.log(result.Content);
+})
+.catch((result: ServiceLayerCallResult) => {
+    console.log("Contents of the ServiceLayerCallResult class...");
+    console.log(result);
+});
+```
+
+...outputs...
+
+    Contents of the ServiceLayerCallResult class...
+    {
+        "content": "",
+        "contentMimeType": null,
+        "returnedHttpStatusCode": 404,
+        "returnedHttpStatusText": "Not Found",
+        "success": false,
+        "errorType": "NonSuccessHttpStatus",
+        "systemErrorMessage": "Response returned non-success HTTP status code 404 indicating 'Not Found' status calling URL 'http://localhost:51499/api/CatalogueItemsz/'."
+    }
+
+#### Defining a base/prefix URL for the service layer...
+
+A base/prefix URL for the service later can be defined on the ServiceLayerInterface constructor via the 'serviceLayerBaseUrl' parameter.  The CallServiceLayer() method accepts a 'urlBuider' parameter which can be either a HttpUrlPathAndQueryBuilder object (which represents a path suffix and optional query parameters which are appended to the base URL), or a HttpUrlBuilder object which contains a full URL and will override the base/prefix URL set on the constructor.
+
+#### The IHttpClient interface...
+
+The ServiceLayerInterface class accepts an IHttpClient parameter in its constructor.  The idea with this interface was to provide a standardized abstraction of other classes which make direct HTTP calls.  Currently an implementation of this is provided which uses the [Aurelia](https://aurelia.io/) [HttpClient](https://aurelia.io/docs/plugins/http-services#aurelia-http-client) (class AureliaHttpClient), but the same interface could also be implemented for other HTTP clients (e.g. [Angular](https://angular.io/tutorial/toh-pt6#heroes-and-http)).
+
+#### The HttpUrlBuilder, HttpUrlPathAndQueryBuilder, and HttpUrlPrefixBuilder classes...
+
+These classes are losely based on the [UriBuilder](https://docs.microsoft.com/en-us/dotnet/api/system.uribuilder?view=netframework-4.8) class in .NET, and place more structure around the creation of URLs... with the goal being to reduce typos and resulting runtime errors which can occur when URLs are created and concatenated as simple unstructured strings.
+
 
 ## Future Enhancements
+ContainerObjectTypeValidator
 - Greater use of Type aliases
 - Support for the JavaScript 'BigInt' type
 - Test (and possibly implement) support for recursive objects like tree nodes
+
+ServiceLayerInterface
+- Add an implementation of IHttpClient using the XMLHttpRequest object
+- Add support for returned HTTP content types other than 'application/json'
+- Add samples
 
 
 ## Release History

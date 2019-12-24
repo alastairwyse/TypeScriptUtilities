@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { JavascriptBasicType, ObjectTypeConversionDefinition } from '../../src/object-type-conversion-definition';
+import { JavascriptBasicType, ObjectTypeConversionDefinition } from '../../../../src/utilities/data-validation/object-type-conversion-definition';
 
 /**
  * @desc Unit tests for the ObjectTypeConversionDefinition class.

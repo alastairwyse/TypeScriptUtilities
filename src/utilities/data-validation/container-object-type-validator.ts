@@ -20,8 +20,8 @@ import {
     EnumTypeConversionDefinition, 
     TypeConversionDefinition, 
     ObjectTypeConversionDefinition 
-} from './object-type-conversion-definition';
-import { JavaScriptStringConstants } from './javascript-string-constants';
+} from '../data-validation/object-type-conversion-definition';
+import { JavaScriptStringConstants } from '../../common/javascript-string-constants';
 
 /**
  * @name ContainerObjectTypeValidator

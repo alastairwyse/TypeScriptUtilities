@@ -52,7 +52,7 @@ export enum JavascriptBasicType
  * @name ITypedObjectConversionFunction
  * @desc Converts an object of type 'any' to a typed object.
  * 
- * @argument {any} untypedObject - Aa un-typed object.
+ * @argument {any} untypedObject - An un-typed object.
  * @template T - The type of object to convert to.
  * @returns {T} - The typed object.
  */
@@ -111,7 +111,7 @@ export class ObjectTypeConversionDefinition {
      * 
      * @returns {boolean} - True if a validation/conversion definition exists for the specified property, false otherwise.
      */
-    HasDefinition(propertyName: string) : boolean {
+    public HasDefinition(propertyName: string) : boolean {
 
         return this.propertyDefinitions.has(propertyName);
     }
@@ -125,7 +125,7 @@ export class ObjectTypeConversionDefinition {
      * @returns {TypeConversionDefinition} - The validation/conversion definition for the property.
      * @throws {Error} - No validation/conversion definition exists for the specified property name.
      */
-    GetDefinition(propertyName: string) : TypeConversionDefinition {
+    public GetDefinition(propertyName: string) : TypeConversionDefinition {
         if (this.propertyDefinitions.has(propertyName) === false)
             throw new Error(`No validation/conversion definition exists for property name '${propertyName}'.`);
 
@@ -140,7 +140,7 @@ export class ObjectTypeConversionDefinition {
      * 
      * @returns {boolean} - True if the property should be excluded from validation/conversion, false otherwise.
      */
-    PropertyIsExcluded(propertyName: string) : boolean {
+    public PropertyIsExcluded(propertyName: string) : boolean {
 
         return this.excludeProperties.has(propertyName);
     }
@@ -154,7 +154,7 @@ export class ObjectTypeConversionDefinition {
      * 
      * @returns {boolean} - True if the property can bet set null, false otherwise.
      */
-    PropertyIsNullable(propertyName: string) : boolean {
+    public PropertyIsNullable(propertyName: string) : boolean {
 
         return this.nullableProperties.has(propertyName);
     }

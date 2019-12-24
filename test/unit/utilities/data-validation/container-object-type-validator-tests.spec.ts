@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { JavaScriptStringConstants } from '../../src/javascript-string-constants';
-import { JavascriptBasicType, TypeConversionDefinition, ObjectTypeConversionDefinition, EnumTypeConversionDefinition } from '../../src/object-type-conversion-definition';
-import { ContainerObjectTypeValidator } from '../../src/container-object-type-validator';
+import { JavaScriptStringConstants } from '../../../../src/common/javascript-string-constants';
+import { JavascriptBasicType, TypeConversionDefinition, ObjectTypeConversionDefinition, EnumTypeConversionDefinition } from '../../../../src/utilities/data-validation/object-type-conversion-definition';
+import { ContainerObjectTypeValidator } from '../../../../src/utilities/data-validation/container-object-type-validator';
 
 // #region Test Classes
 

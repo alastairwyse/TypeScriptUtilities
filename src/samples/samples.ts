@@ -1,5 +1,5 @@
-import { TypeConversionDefinition, JavascriptBasicType, ITypedObjectConversionFunction, ObjectTypeConversionDefinition } from './object-type-conversion-definition';
-import { ContainerObjectTypeValidator } from './container-object-type-validator';
+import { TypeConversionDefinition, JavascriptBasicType, ITypedObjectConversionFunction, ObjectTypeConversionDefinition } from '../utilities/data-validation/object-type-conversion-definition';
+import { ContainerObjectTypeValidator } from '../utilities/data-validation/container-object-type-validator';
 
 // #region Test Classes
 

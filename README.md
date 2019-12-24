@@ -745,7 +745,7 @@ serviceLayerInterface.CallServiceLayer(
 
 #### Defining a base/prefix URL for the service layer...
 
-A base/prefix URL for the service later can be defined on the ServiceLayerInterface constructor via the 'serviceLayerBaseUrl' parameter.  The CallServiceLayer() method accepts a 'urlBuider' parameter which can be either a HttpUrlPathAndQueryBuilder object (which represents a path suffix and optional query parameters which are appended to the base URL), or a HttpUrlBuilder object which contains a full URL and will override the base/prefix URL set on the constructor.
+A base/prefix URL for the service layer can be defined on the ServiceLayerInterface constructor via the 'serviceLayerBaseUrl' parameter.  The CallServiceLayer() method accepts a 'urlBuider' parameter which can be either a HttpUrlPathAndQueryBuilder object (which represents a path suffix and optional query parameters which are appended to the base URL), or a HttpUrlBuilder object which contains a full URL and will override the base/prefix URL set on the constructor.
 
 #### The IHttpClient interface...
 
@@ -763,6 +763,7 @@ ContainerObjectTypeValidator
 - Test (and possibly implement) support for recursive objects like tree nodes
 
 ServiceLayerInterface
+- Consider adding a string override to CallServiceLayer() 'urlBuider' parameter 
 - Add an implementation of IHttpClient using the XMLHttpRequest object
 - Add support for returned HTTP content types other than 'application/json'
 - Add samples

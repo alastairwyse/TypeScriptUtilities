@@ -757,6 +757,7 @@ These classes are losely based on the [UriBuilder](https://docs.microsoft.com/en
 
 
 ## Installing
+Use the *npm install* command from the project root folder to restore dependent packages.
 
 Unit tests can be run using the command *npm test* (uses [jest](https://jestjs.io/) and [ts-jest](https://github.com/kulshekhar/ts-jest)).
 

@@ -43,7 +43,7 @@ ContainerObjectTypeValidator might also be useful when consuming APIs endpoints 
 
 ### In Use
 
-The below examples and associated container/model class definitions are available in file [samples.ts](src/samples.ts).
+The below examples and associated container/model class definitions are available in file [samples.ts](src/samples/samples.ts).
 
 #### Validating and converting Javascript basic types and dates...
 
@@ -69,11 +69,11 @@ console.log(returnedDate);
 let untypedNumberArray = [ "123", "456", "789" ];
 let returnedNumberArray: Array<number> = containerObjectTypeValidator.ValidateAndConvertBasicTypeArray<number>(untypedNumberArray, JavascriptBasicType.Number);
 let untypedBooleanArray = [ "true", "false", "true" ];
-let returnedBooleanrArray: Array<boolean> = containerObjectTypeValidator.ValidateAndConvertBasicTypeArray<boolean>(untypedBooleanArray, JavascriptBasicType.Boolean);
+let returnedBooleanArray: Array<boolean> = containerObjectTypeValidator.ValidateAndConvertBasicTypeArray<boolean>(untypedBooleanArray, JavascriptBasicType.Boolean);
 let untypedDateArray = [ "2017-11-12", "2018-10-13", "2019-09-14" ];
 let returnedDateArray: Array<Date> = containerObjectTypeValidator.ValidateAndConvertBasicTypeArray<Date>(untypedDateArray, JavascriptBasicType.Date);
 console.log(returnedNumberArray);
-console.log(returnedBooleanrArray);
+console.log(returnedBooleanArray);
 console.log(returnedDateArray);
 ```
 ...outputs...
@@ -754,6 +754,11 @@ The ServiceLayerInterface class accepts an IHttpClient parameter in its construc
 #### The HttpUrlBuilder, HttpUrlPathAndQueryBuilder, and HttpUrlPrefixBuilder classes...
 
 These classes are losely based on the [UriBuilder](https://docs.microsoft.com/en-us/dotnet/api/system.uribuilder?view=netframework-4.8) class in .NET, and place more structure around the creation of URLs... with the goal being to reduce typos and resulting runtime errors which can occur when URLs are created and concatenated as simple unstructured strings.
+
+
+## Installing
+
+Unit tests can be run using the command *npm test* (uses [jest](https://jestjs.io/) and [ts-jest](https://github.com/kulshekhar/ts-jest)).
 
 
 ## Future Enhancements

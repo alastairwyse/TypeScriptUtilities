@@ -112,3 +112,6 @@ dist
 
 # test coverage folder
 test/coverage-jest/
+
+# Documentation folder
+Documentation/

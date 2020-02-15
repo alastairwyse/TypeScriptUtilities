@@ -50,21 +50,6 @@ export enum ServiceCallErrorType {
  * @desc Holds details of the result of calling the service layer of an application.
  */
 export class ServiceLayerCallResult {
-    
-    // The HTTP response content
-    protected content: any;
-    // The MIME type of the HTTP response
-    protected contentMimeType: HttpContentType | null;
-    // The returned HTTP status code
-    protected returnedHttpStatusCode: number;
-    // The meaning of the returned HTTP status code
-    protected returnedHttpStatusText: string;
-    // Whether the service layer call was successful
-    protected success: boolean;
-    // The type of error resulting from the service layer call (or null in the case of no error)
-    protected errorType: ServiceCallErrorType | null;
-    // The description of the error resulting from the service layer call (or a blank string in the case of no error)
-    protected systemErrorMessage: string;
 
     /**
      * @name Content
@@ -134,21 +119,14 @@ export class ServiceLayerCallResult {
      * @param {string} systemErrorMessage - The description of the error resulting from the service layer call (or a blank string in the case of no error).
      */
     constructor(
-        content: any, 
-        contentMimeType: HttpContentType | null, 
-        returnedHttpStatusCode: number, 
-        returnedHttpStatusText: string, 
-        success: boolean, 
-        errorType: ServiceCallErrorType | null, 
-        systemErrorMessage: string = ""
+        protected content: any, 
+        protected contentMimeType: HttpContentType | null, 
+        protected returnedHttpStatusCode: number, 
+        protected returnedHttpStatusText: string, 
+        protected success: boolean, 
+        protected errorType: ServiceCallErrorType | null, 
+        protected systemErrorMessage: string = ""
     ) {
-        this.content = content;
-        this.contentMimeType = contentMimeType;
-        this.returnedHttpStatusCode = returnedHttpStatusCode;
-        this.returnedHttpStatusText = returnedHttpStatusText;
-        this.success = success;
-        this.errorType = errorType;
-        this.systemErrorMessage = systemErrorMessage;
     }
 }
 
@@ -165,6 +143,7 @@ export class ServiceLayerInterface {
     //   Ability to set bearer token etc... via HttpClient().configure() (see https://aurelia.io/docs/plugins/http-services#aurelia-http-client)
     //   Add friendly/UI error message??
     //   Add cancellation of an in progress service call
+    //   Think about putting Aurelia implementation classes into an aurelia sub folder
 
     // Contains a mapping from a string representing a HTTP content type, to the equivalent HttpContentType enum for the content type
     protected httpContentTypeStringValues: Map<string | null, HttpContentType>;
@@ -263,7 +242,20 @@ export class ServiceLayerInterface {
                     resolve(result);
                 })
                 .catch((response: IHttpResponse) : void => {
-                    if (response.StatusCode > 0) {
+                    if (response.MimeType !== null && this.httpContentTypeStringValues.has(response.MimeType) === false) {
+                        // Returned content/MIME type is not handled
+                        let result: ServiceLayerCallResult = new ServiceLayerCallResult(
+                            response.Content,
+                            null, 
+                            response.StatusCode, 
+                            response.StatusText, 
+                            false,  
+                            ServiceCallErrorType.UnhandledHttpContentType, 
+                            `Response contained unhandled HTTP content type '${response.MimeType}' calling URL '${url}'.`
+                        );
+                        reject(result);
+                    }
+                    else if (response.StatusCode > 0) {
                         // Response was received, but status is not success status
                         let result: ServiceLayerCallResult = new ServiceLayerCallResult(
                             response.Content,
@@ -335,5 +327,9 @@ export class ServiceLayerInterface {
             if (handledHttpContentTypes.has(<HttpContentType>currentHttpContentTypeValue) === false)
                 throw new Error(`Map 'httpContentTypeStringValues' does not contain an entry for HttpContentType '${currentHttpContentTypeValue}'.`);
         }
+    }
+
+    protected IsSuccessHttpStatusCode(statusCode: number) : boolean {
+        return (statusCode >= 200 && statusCode <= 299);
     }
 }

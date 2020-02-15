@@ -20,11 +20,11 @@
  */
 export class JavaScriptStringConstants {
 
-    static StringType: string = "string";
-    static BooleanType: string = "boolean";
-    static NumberType: string = "number";
-    static ObjectType: string = "object";
-    static InvalidDate: string = "Invalid Date";
-    static Undefined: string = "undefined";
+    static readonly StringType: string = "string";
+    static readonly BooleanType: string = "boolean";
+    static readonly NumberType: string = "number";
+    static readonly ObjectType: string = "object";
+    static readonly InvalidDate: string = "Invalid Date";
+    static readonly Undefined: string = "undefined";
     
 }

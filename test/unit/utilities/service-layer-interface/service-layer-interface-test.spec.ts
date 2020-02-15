@@ -100,7 +100,7 @@ describe("ServiceLayerInterface Tests", () => {
         done();
     });
 
-    it("CallServiceLayer(): Unhandled HTTP content (MIME) type throws exception.", done => {
+    it("CallServiceLayer(): Unhandled HTTP content (MIME) type for resolved promise throws exception.", done => {
         let responseContent = { "name": "value" };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, "unhandled-content-type", "json", 200, "OK");
         let returnedPromise: Promise<IHttpResponse> = CreateIHttpResponsePromise(returnedHttpResponse, true);
@@ -120,6 +120,30 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("OK");
             expect(result.Success).toBe(false);
             expect(result.SystemErrorMessage).toBe("Response contained unhandled HTTP content type 'unhandled-content-type' calling URL 'http://www.example.com:80/api/myPath/'.");
+            done();
+        });
+    });
+
+    it("CallServiceLayer(): Unhandled HTTP content (MIME) type for rejected promise throws exception.", done => {
+        let responseContent = { "name": "value" };
+        let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, "application/octet-stream", "error", 200, "OK");
+        let returnedPromise: Promise<IHttpResponse> = CreateIHttpResponsePromise(returnedHttpResponse, false);
+        let mockHttpClient: IHttpClient = CreateMockIHttpClient("http://www.example.com:80/api/myPath/", HttpRequestMethod.Get, "", 1000, returnedPromise);
+        let url: HttpUrlPathAndQueryBuilder = new HttpUrlPathAndQueryBuilder("myPath/");
+        testServiceLayerInterface = new ServiceLayerInterface(defaultUrlPrefixBuilder, 1000, mockHttpClient);
+
+        return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json)
+        .then((result: ServiceLayerCallResult) => {
+            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`); 
+        })
+        .catch((result: ServiceLayerCallResult) => { 
+            expect(result.Content.name).toBe("value");
+            expect(result.ContentMimeType).toBe(null);
+            expect(result.ErrorType).toBe(ServiceCallErrorType.UnhandledHttpContentType);
+            expect(result.ReturnedHttpStatusCode).toBe(200);
+            expect(result.ReturnedHttpStatusText).toBe("OK");
+            expect(result.Success).toBe(false);
+            expect(result.SystemErrorMessage).toBe("Response contained unhandled HTTP content type 'application/octet-stream' calling URL 'http://www.example.com:80/api/myPath/'.");
             done();
         });
     });

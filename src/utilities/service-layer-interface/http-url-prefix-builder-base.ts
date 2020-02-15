@@ -22,8 +22,8 @@ import { UrlScheme } from './url-scheme';
  */
 export abstract class HttpUrlPrefixBuilderBase {
 
-    static minimumPortNumber: number = 1;
-    static maximumPortNumber: number = 65535;
+    static readonly minimumPortNumber: number = 1;
+    static readonly maximumPortNumber: number = 65535;
 
     protected urlSchemeToStringMap: Map<UrlScheme, string>;
     protected scheme: UrlScheme;

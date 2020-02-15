@@ -591,7 +591,11 @@ The original goal of this class was to create a wrapper around [Aurelia's](https
   </tr>
 </table>
 
+ServiceLayerInterface has since been enhanced to optionally wrap [Angular's](https://angular.io/) [HttpClient](https://angular.io/api/common/http/HttpClient).  
+
 ### In Use
+
+The below examples are created with the AureliaHttpClient, but the results and contents of ServiceLayerCallResult class are the same when using the AngularHttpClient.
 
 #### Success case...
 
@@ -749,7 +753,7 @@ A base/prefix URL for the service layer can be defined on the ServiceLayerInterf
 
 #### The IHttpClient interface...
 
-The ServiceLayerInterface class accepts an IHttpClient parameter in its constructor.  The idea with this interface was to provide a standardized abstraction of other classes which make direct HTTP calls.  Currently an implementation of this is provided which uses the [Aurelia](https://aurelia.io/) [HttpClient](https://aurelia.io/docs/plugins/http-services#aurelia-http-client) (class AureliaHttpClient), but the same interface could also be implemented for other HTTP clients (e.g. [Angular](https://angular.io/tutorial/toh-pt6#heroes-and-http)).
+The ServiceLayerInterface class accepts an IHttpClient parameter in its constructor.  The idea with this interface was to provide a standardized abstraction of other classes which make direct HTTP calls.  Currently an implementations of this are provided which use the [Aurelia](https://aurelia.io/) [HttpClient](https://aurelia.io/docs/plugins/http-services#aurelia-http-client) (class AureliaHttpClient), and the [Angular](https://angular.io/) [HttpClient](https://angular.io/api/common/http/HttpClient) (class AngularHttpClient).  Testing was performed again versions 1.3.1 and 8.2.14 of the Aurelia and Angular HTTP clients respectively. 
 
 #### The HttpUrlBuilder, HttpUrlPathAndQueryBuilder, and HttpUrlPrefixBuilder classes...
 
@@ -767,13 +771,17 @@ ContainerObjectTypeValidator
 - Greater use of Type aliases
 - Support for the JavaScript 'BigInt' type
 - Test (and possibly implement) support for recursive objects like tree nodes
+- Check whether 2d Arrays can be validated, and implement if they can't
 
 ServiceLayerInterface
 - Consider adding a string override to CallServiceLayer() 'urlBuider' parameter 
 - Add an implementation of IHttpClient using the XMLHttpRequest object
 - Add support for returned HTTP content types other than 'application/json'
 - Add samples
+- Add injectable logger instance to ServiceLayerInterface constructor
 
+General
+- Look at using TypeScript [Namespaces](https://www.typescriptlang.org/docs/handbook/namespaces.html)
 
 ## Release History
 
@@ -783,9 +791,10 @@ ServiceLayerInterface
         <td><b>Changes</b></td>
     </tr>
     <tr>
-        <td valign="top">0</td>
+        <td valign="top">0.1.0</td>
         <td>
-            ...
+            Started using version numbers.<br />
+            Added the AngularHttpClient class.<br />
         </td>
     </tr>
 </table>

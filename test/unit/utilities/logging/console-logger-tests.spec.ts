@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
- 
+import { MockSessionIdProviderImplementation } from './mock-session-id-provider-implementation';
 import { MockDateTimeProviderImplementation } from './mock-date-time-provider-implementation';
+import { ISessionIdProvider } from '../../../../src/utilities/logging/isession-id-provider';
 import { IDateTimeProvider } from '../../../../src/utilities/logging/idate-time-provider';
 import { IConsole } from '../../../../src/utilities/logging/iconsole';
 import { ConsoleLogger } from '../../../../src/utilities/logging/console-logger';
@@ -42,17 +43,23 @@ class MockConsoleImplementation implements IConsole {
  * @desc Unit tests for the ConsoleLogger class.
  */
 describe("ConsoleLogger Tests", () => {
+    let mockSessionIdProvider: ISessionIdProvider; 
     let mockDateTimeProvider: IDateTimeProvider;
     let mockConsole: MockConsoleImplementation;
     let testConsoleLogger: ConsoleLogger;
+    const testSessionId = "2293f78e-e5c7-4ea9-b51c-be23be100790";
+    const testUserId = "user1234";
 
     beforeEach(() => {
+        mockSessionIdProvider = new MockSessionIdProviderImplementation(testSessionId);
         mockDateTimeProvider = new MockDateTimeProviderImplementation();
         mockConsole = new MockConsoleImplementation();
         testConsoleLogger = new ConsoleLogger(
             LogLevel.Information, 
             "|", 
             "YYYY-MM-DDTHH:mm:ss.SSSZ", 
+            mockSessionIdProvider, 
+            testUserId, 
             mockDateTimeProvider, 
             mockConsole
         );
@@ -61,11 +68,19 @@ describe("ConsoleLogger Tests", () => {
     afterEach(() => { 
     });
 
-    it("Log(): Success test.", done => {
+    it("Log(): Include error success test.", done => {
         testConsoleLogger.Log(LogLevel.Information, "Test message", new Error("Test error"));
 
         expect(mockConsole.ConsoleEntries.length).toBe(1);
-        expect(mockConsole.ConsoleEntries[0]).toBe("2019-11-30T17:43:00.000+09:00 | Information | Test message | Test error");
+        expect(mockConsole.ConsoleEntries[0]).toBe("user1234 | 2293f78e-e5c7-4ea9-b51c-be23be100790 | 2019-11-30T17:43:00.000+09:00 | Information | Test message | Test error");
+        done();
+    });
+
+    it("Log(): Exclude error success test.", done => {
+        testConsoleLogger.Log(LogLevel.Information, "Test message");
+
+        expect(mockConsole.ConsoleEntries.length).toBe(1);
+        expect(mockConsole.ConsoleEntries[0]).toBe("user1234 | 2293f78e-e5c7-4ea9-b51c-be23be100790 | 2019-11-30T17:43:00.000+09:00 | Information | Test message");
         done();
     });
     

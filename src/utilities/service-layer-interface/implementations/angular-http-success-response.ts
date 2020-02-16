@@ -26,7 +26,7 @@ export class AngularHttpSuccessResponse implements IHttpResponse {
 
     protected static readonly jsonHttpContentTypeString: string = "application/json";
     protected static readonly unknownHttpContentTypeString: string = "application/octet-stream";
-    // The value to return in the 'ResponseType' property in the case of success
+    /** The value to return in the 'ResponseType' property in the case of success */
     protected static readonly responseTypeSuccessValue: string = "json";
 
     protected httpResponse: HttpResponse<any>;

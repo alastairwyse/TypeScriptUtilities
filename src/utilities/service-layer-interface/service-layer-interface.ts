@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { JavaScriptStringConstants } from '../../common/javascript-string-constants'
 import { IHttpClient, IHttpResponse } from './ihttp-client';
 import { HttpUrlPrefixBuilder } from './http-url-prefix-builder';
 import { HttpUrlPathAndQueryBuilder } from './http-url-path-and-query-builder';
@@ -145,13 +146,13 @@ export class ServiceLayerInterface {
     //   Add cancellation of an in progress service call
     //   Think about putting Aurelia implementation classes into an aurelia sub folder
 
-    // Contains a mapping from a string representing a HTTP content type, to the equivalent HttpContentType enum for the content type
+    /** Contains a mapping from a string representing a HTTP content type, to the equivalent HttpContentType enum for the content type */
     protected httpContentTypeStringValues: Map<string | null, HttpContentType>;
-    // An implementation of IHttpClient
+    /** An implementation of IHttpClient */
     protected httpClient: IHttpClient;
-    // The URL prefix to use for each call to the service layer
+    /** The URL prefix to use for each call to the service layer */
     protected serviceLayerBaseUrl: HttpUrlPrefixBuilder;
-    // The default timeout length for each call to the service layer (in milliseconds)
+    /** The default timeout length for each call to the service layer (in milliseconds) */
     protected defaultTimeout: number;
 
     /**
@@ -179,7 +180,7 @@ export class ServiceLayerInterface {
      * @param {HttpRequestMethod} httpMethod - The HTTP request method to use in the call.
      * @param {any} body - The message body.
      * @param {HttpContentType} bodyContentType - The content type of the message body.
-     * @param {number | null} timeout - (Optional) The timeout length for the call, or null to use the timeout defined in the constructor.
+     * @param {number} [timeout] - (Optional) The timeout length for the call, or null to use the timeout defined in the constructor.
      * 
      * @returns {Promise<ServiceLayerCallResult>} - A promise which resolves to a ServiceLayerCallResult object.
      */
@@ -188,7 +189,7 @@ export class ServiceLayerInterface {
         httpMethod: HttpRequestMethod, 
         body: any = null,
         bodyContentType: HttpContentType = HttpContentType.Application_Json, 
-        timeout: number | null = null
+        timeout?: number
     ) : Promise<ServiceLayerCallResult> {
 
         const timeoutResponseTypeString: string = "timeout";
@@ -205,8 +206,8 @@ export class ServiceLayerInterface {
             
         // Get the correct timeout
         let timeoutToUse = this.defaultTimeout;
-        if (timeout !== null) 
-            timeoutToUse = timeout;
+        if (typeof(timeout) !== JavaScriptStringConstants.Undefined) 
+            timeoutToUse = <number>timeout;
 
         return new Promise<ServiceLayerCallResult>((
             resolve: ((result: ServiceLayerCallResult) => void), 

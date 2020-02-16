@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import { JavaScriptStringConstants } from '../../common/javascript-string-constants'; 
+import { ISessionIdProvider } from './isession-id-provider';
+import { IDateTimeProvider } from './idate-time-provider';
 import { IConsole } from './iconsole';
 import { DefaultConsole } from './default-console';
 import { LogLevel } from './log-level';
 import { LoggerBase } from './logger-base';
-import { IDateTimeProvider } from './idate-time-provider';
 
 /**
  * @name ConsoleLogger
@@ -32,30 +34,34 @@ export class ConsoleLogger extends LoggerBase {
      * @param {LogLevel} minimumLogLevel - The minimum level of log entries to write.  Log entries with a level of importance lower than this will not be written.
      * @param {string} separatorString - The string to use to separate fields (e.g. date/time stamp, log level, log text) within a log entry.
      * @param {string} dateTimeFormat - A Moment.js-compatible format string to use to format dates and times in the resulting logging information.
-     * @param {IDateTimeProvider | null} dateTimeProvider - (Optional) An implementation of interface IDateTimeProvider, to provide the formatted current date and time.
-     * @param {IConsole | null} consoleImplementation - (Optional) An implementation of interface IConsole.  Used for mocking in unit tests.
+     * @param {string | ISessionIdProvider} sessionIdOrProvider - A unique session id to include in the log entry, or an implementation of interface ISessionIdProvider, to provide unique session ids.
+     * @param {string} [userId] - (Optional) A unique identifier for the current user.
+     * @param {IDateTimeProvider} [dateTimeProvider] - (Optional) An implementation of interface IDateTimeProvider, to provide the formatted current date and time.
+     * @param {IConsole} [consoleImplementation] - (Optional) An implementation of interface IConsole.  Used for mocking in unit tests.
      */
     constructor(
         minimumLogLevel: LogLevel, 
         separatorString: string = "|", 
         dateTimeFormat: string = "YYYY-MM-DDTHH:mm:ss.SSSZ", 
-        dateTimeProvider: IDateTimeProvider | null = null, 
-        consoleImplementation: IConsole | null = null
+        sessionIdOrProvider: string | ISessionIdProvider, 
+        userId?: string,
+        dateTimeProvider?: IDateTimeProvider, 
+        consoleImplementation?: IConsole
     ) {
-        super(minimumLogLevel, separatorString, dateTimeFormat, dateTimeProvider);
-        if (consoleImplementation === null)
+        super(minimumLogLevel, separatorString, dateTimeFormat, sessionIdOrProvider, userId, dateTimeProvider);
+        if (typeof(consoleImplementation) === JavaScriptStringConstants.Undefined)
             this.consoleImplementation = new DefaultConsole();
         else
-            this.consoleImplementation = consoleImplementation;
+            this.consoleImplementation = <IConsole>consoleImplementation;
     }
 
-    public Log(level: LogLevel, message: string, error: Error | null) : void {
+    public Log(level: LogLevel, message: string, error?: Error) : void {
 
         let logEntry: string = super.InitializeLogEntry();
         logEntry = super.AppendLogLevel(logEntry, level);
         logEntry = super.AppendLogMessage(logEntry, message);
-        if (error !== null) {
-            logEntry = super.AppendError(logEntry, error);
+        if (typeof(error) !== JavaScriptStringConstants.Undefined) {
+            logEntry = super.AppendError(logEntry, <Error>error);
         }
 
         if (super.LogLevelIsGreaterThanOrEqualToMinimum(level) === true) {

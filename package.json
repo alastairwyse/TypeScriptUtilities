@@ -29,6 +29,8 @@
   },
   "dependencies": {
     "@angular/common": "^9.0.1",
-    "rxjs": "^6.5.4"
+    "@types/uuid": "^3.4.7",
+    "rxjs": "^6.5.4",
+    "uuid": "^3.4.0"
   }
 }

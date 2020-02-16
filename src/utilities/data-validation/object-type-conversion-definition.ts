@@ -66,11 +66,11 @@ export interface ITypedObjectConversionFunction<T> {
  */
 export class ObjectTypeConversionDefinition {
 
-    // A map of container object property names (key), and their data type or method of validation/conversion (value)
+    /** A map of container object property names (key), and their data type or method of validation/conversion (value) */ 
     protected propertyDefinitions: Map<string, TypeConversionDefinition>;
-    // A collection of names of properties on the un-typed object which should be excluded from validation/conversion.
+    /** A collection of names of properties on the un-typed object which should be excluded from validation/conversion. */ 
     protected excludeProperties: Map<string, string>;
-    // A collection of names of properties on the un-typed object which are allowed to be set null.
+    /** A collection of names of properties on the un-typed object which are allowed to be set null. */ 
     protected nullableProperties: Map<string, string>;
 
     /**

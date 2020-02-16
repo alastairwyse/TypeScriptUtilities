@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2020 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
+import { ILogger } from './ilogger';
 import { LogLevel } from './log-level';
 
 /**
- * @name ILogger
- * @description Defines methods to record log events and information about an application (e.g. operational information, status, error/exception information, debug, etc...).
+ * @name CompositeLogger
+ * @description Implementation of ILogger which holds and logs to multiple loggers (following the GoF Composite pattern).
  */
-export interface ILogger {
+export class CompositeLogger implements ILogger {
+
+    /**
+     * @param {Array<ILogger>} loggers - The collection of loggers to broadcast log entries to.
+     * @throws {Error} - Parameter 'loggers' is empty.
+     */
+    constructor(protected loggers: Array<ILogger>) {
+        if (loggers.length === 0)
+            throw new Error(`Parameter 'loggers' cannot be empty.`);
+    }
 
     /**
      * @name Log
@@ -30,5 +40,9 @@ export interface ILogger {
      * @param {string} message - The details of the log event.
      * @param {Error} [error] - (Optional) The error which caused the log event.
      */
-    Log(level: LogLevel, message: string, error?: Error) : void;
+    Log(level: LogLevel, message: string, error?: Error): void {
+        for (let i: number = 0; i < this.loggers.length; i++) {
+            this.loggers[i].Log(level, message, error);
+        }
+    }
 }

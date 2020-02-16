@@ -23,7 +23,7 @@ import { IDateTimeProvider } from '../../../../src/utilities/logging/idate-time-
  */
 export class MockDateTimeProviderImplementation implements IDateTimeProvider {
 
-    currentDateTime: moment.Moment;
+    protected currentDateTime: moment.Moment;
 
     constructor() {
         this.currentDateTime = moment("2019-11-30 17:43:00.000+09:00");

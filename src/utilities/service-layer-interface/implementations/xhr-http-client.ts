@@ -33,11 +33,11 @@ interface IPromiseCallbackFunction {
  */
 export class XhrHttpClient implements IHttpClient {
 
-    // The JavaScript XMLHttpRequest
+    /** The JavaScript XMLHttpRequest */
     protected xmlHttpRequest: XMLHttpRequest;
-    // The function to call in the case that calling the Call() method is successful.
+    /** The function to call in the case that calling the Call() method is successful. */
     protected resolveFunction : IPromiseCallbackFunction;
-    // The function to call in the case that calling the Call() method fails.
+    /** The function to call in the case that calling the Call() method fails. */
     protected rejectFunction : IPromiseCallbackFunction;
     
     constructor() {

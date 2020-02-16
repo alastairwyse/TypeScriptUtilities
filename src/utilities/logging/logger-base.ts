@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { JavaScriptStringConstants } from '../../common/javascript-string-constants'; 
+import { ISessionIdProvider } from './isession-id-provider';
 import { IDateTimeProvider } from './idate-time-provider';
 import { ILogger } from './ilogger';
 import { DefaultDateTimeProvider } from './default-date-time-provider';
@@ -25,6 +27,8 @@ import { LogLevel } from './log-level';
  */
 export abstract class LoggerBase implements ILogger {
 
+    /** A unique id for this session (i.e. the duration for which this instance of LoggerBase exists) */
+    protected sessionId: string;
     /** The minimum level of log entries to write.  Log entries with a level of importance lower than this will not be written. */
     protected minimumLogLevel: LogLevel;
     /** The levels/heirarchy of each log entry from lowest to highest importance. */
@@ -33,6 +37,8 @@ export abstract class LoggerBase implements ILogger {
     protected separatorString: string;
     /** A Moment.js-compatible format string to use to format dates and times in the resulting logging information. */
     protected dateTimeFormat: string;
+    /** A unique identifier for the current user of the application */
+    protected userId: string | null;
     /** An implementation of interface IDateTimeProvider, to provide the formatted current date and time. */
     protected dateTimeProvider: IDateTimeProvider;
 
@@ -40,17 +46,40 @@ export abstract class LoggerBase implements ILogger {
      * @param {LogLevel} minimumLogLevel - The minimum level of log entries to write.  Log entries with a level of importance lower than this will not be written.
      * @param {string} separatorString - The string to use to separate fields (e.g. date/time stamp, log level, log text) within a log entry.
      * @param {string} dateTimeFormat - A Moment.js-compatible format string to use to format dates and times in the resulting logging information.
-     * @param {IDateTimeProvider | null} dateTimeProvider - (Optional) An implementation of interface IDateTimeProvider, to provide the formatted current date and time.
+     * @param {string | ISessionIdProvider} sessionIdOrProvider - A unique session id to include in the log entry, or an implementation of interface ISessionIdProvider, to provide unique session ids.
+     * @param {string} [userId] - (Optional) A unique identifier for the current user.
+     * @param {IDateTimeProvider} [dateTimeProvider] - (Optional) An implementation of interface IDateTimeProvider, to provide the formatted current date and time.
      */
-    constructor(minimumLogLevel: LogLevel, separatorString: string = "|", dateTimeFormat: string = "YYYY-MM-DDTHH:mm:ss.SSSZ", dateTimeProvider: IDateTimeProvider | null = null) {
+    constructor(
+        minimumLogLevel: LogLevel, 
+        separatorString: string = "|", 
+        dateTimeFormat: string = "YYYY-MM-DDTHH:mm:ss.SSSZ", 
+        sessionIdOrProvider: string | ISessionIdProvider, 
+        userId?: string, 
+        dateTimeProvider?: IDateTimeProvider
+    ) {
+        if (typeof(sessionIdOrProvider) === JavaScriptStringConstants.StringType) {
+            this.sessionId = <string>sessionIdOrProvider;
+        }
+        else {
+            this.sessionId = (<ISessionIdProvider>sessionIdOrProvider).GenerateId();
+        }
         this.minimumLogLevel = minimumLogLevel;
         this.logLevelOrder = [ LogLevel.Debug, LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Critical ];
         this.separatorString = separatorString;
         this.dateTimeFormat = dateTimeFormat;
-        if (dateTimeProvider === null)
+        if (typeof(userId) === JavaScriptStringConstants.Undefined) {
+            this.userId = null;
+        }
+        else {
+            this.userId = <string>userId;
+        }
+        if (typeof(dateTimeProvider) === JavaScriptStringConstants.Undefined) {
             this.dateTimeProvider = new DefaultDateTimeProvider();
-        else
-            this.dateTimeProvider = dateTimeProvider;
+        }
+        else {
+            this.dateTimeProvider = <IDateTimeProvider>dateTimeProvider;
+        }
     }
 
     /**
@@ -59,9 +88,9 @@ export abstract class LoggerBase implements ILogger {
      * 
      * @param {LogLevel} level - The level of importance of the log event.
      * @param {string} message - The details of the log event.
-     * @param {Error | null} error - (Optional) The error which caused the log event.
+     * @param {Error} [error] - (Optional) The error which caused the log event.
      */
-    abstract Log(level: LogLevel, message: string, error: Error | null) : void;
+    abstract Log(level: LogLevel, message: string, error?: Error) : void;
 
    /**
      * @name InitializeLogEntry
@@ -70,7 +99,12 @@ export abstract class LoggerBase implements ILogger {
      * @returns {string} - The first part of a log entry string.
      */
     protected InitializeLogEntry() : string {
-        let returnString = this.dateTimeProvider.GetCurrentDateTime(this.dateTimeFormat) + " " + this.separatorString + " ";
+        let returnString: string = "";
+        if (this.userId !== null) {
+            returnString = <string>this.userId + " " + this.separatorString + " ";
+        }
+        returnString += this.sessionId + " " + this.separatorString + " ";
+        returnString += this.dateTimeProvider.GetCurrentDateTime(this.dateTimeFormat) + " " + this.separatorString + " ";
 
         return returnString;
     }

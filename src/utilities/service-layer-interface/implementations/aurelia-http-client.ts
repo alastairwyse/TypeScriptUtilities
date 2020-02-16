@@ -38,9 +38,9 @@ interface IHttpClientMethodFunction {
  */
 export class AureliaHttpClient implements IHttpClient {
    
-    // The Aurelia HttpClient
+    /** The Aurelia HttpClient */
     protected httpClient: HttpClient;
-    // Contains a mapping from a HttpRequestMethod enum, to a function which calls the HTTP method on the Aurelia HttpClient object
+    /** Contains a mapping from a HttpRequestMethod enum, to a function which calls the HTTP method on the Aurelia HttpClient object */
     protected httpClientFunctions: Map<HttpRequestMethod, IHttpClientMethodFunction>
 
     constructor() {

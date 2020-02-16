@@ -782,6 +782,7 @@ ServiceLayerInterface
 
 General
 - Look at using TypeScript [Namespaces](https://www.typescriptlang.org/docs/handbook/namespaces.html)
+- Create a npm package for the project
 
 ## Release History
 

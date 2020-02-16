@@ -24,13 +24,13 @@ import { IHttpResponse } from '../ihttp-client';
 export class AngularHttpErrorResponse implements IHttpResponse {
 
     protected static readonly unknownHttpContentTypeString: string = "application/octet-stream";
-    // The value in the Angular HttpResponse classes' 'name' property in the case of an error
+    /** The value in the Angular HttpResponse classes' 'name' property in the case of an error */
     protected static readonly angularHttpResponseErrorNameProperty: string = "HttpErrorResponse";
-    // The value in the Angular HttpResponse classes' 'name' property in the case of a timeout
+    /** The value in the Angular HttpResponse classes' 'name' property in the case of a timeout */
     protected static readonly angularHttpResponseTimeoutNameProperty: string = "TimeoutError";
-    // The value to return in the 'ResponseType' property in the case of an error
+    /** The value to return in the 'ResponseType' property in the case of an error */
     protected static readonly responseTypeErrorValue: string = "error";
-    // The value to return in the 'ResponseType' property in the case of a timeout
+    /** The value to return in the 'ResponseType' property in the case of a timeout */
     protected static readonly responseTypeTimeoutValue: string = "timeout";
 
     protected httpErrorResponse: HttpErrorResponse;

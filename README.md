@@ -1055,6 +1055,8 @@ General
             ServiceLayerInterface.CallServiceLayer() parameter 'urlOrUrlBuider' can be set to a string containing the full URL of the service layer call.<br />
             Added samples for Buffering and Logging.<br />
         </td>
+    <tr>
+    </tr>
         <td valign="top">0.1.0</td>
         <td>
             Started using version numbers.<br />

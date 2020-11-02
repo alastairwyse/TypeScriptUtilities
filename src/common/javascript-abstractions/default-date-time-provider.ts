@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-/**
- * @name IConsole
- * @description Abstraction of the browser / system console for mocking in unit tests.
- */
-export interface IConsole {
+import * as moment from 'moment';
+import { IDateTimeProvider } from './idate-time-provider';
 
-    /**
-     * @name Log
-     * @description Writes to the conosle.
-     * 
-     * @param {string} message - The text to write to the console.
-     */
-    Log(message: string) : void;
+/**
+ * @name DefaultDateTimeProvider
+ * @desc A default implementation of interface IDateTimeProvider using the Moment.js library.
+ */
+export class DefaultDateTimeProvider implements IDateTimeProvider {
+
+    /** @inheritdoc */
+    GetCurrentDateTime(format: string): string {
+        
+        return moment().format(format);
+    }
 }

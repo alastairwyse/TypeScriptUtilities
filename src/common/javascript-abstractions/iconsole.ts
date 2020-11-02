@@ -15,18 +15,16 @@
  */
 
 /**
- * @name IDateTimeProvider
- * @description Defines methods for returning the current date and time.
+ * @name IConsole
+ * @desc Abstraction of the browser / system console for mocking in unit tests.
  */
-export interface IDateTimeProvider {
+export interface IConsole {
 
     /**
-     * @name GetCurrentDateTime
-     * @description Returns the current date and time as a formatted string.
+     * @name Log
+     * @desc Writes to the conosle.
      * 
-     * @param {string} format - The format to return the date and time in (in the formats supported by moment.js... see https://momentjs.com/docs/#/displaying/format/).
-     * 
-     * @returns {string} - The current date and time.
+     * @param {string} message - The text to write to the console.
      */
-    GetCurrentDateTime(format: string) : string;
+    Log(message: string) : void;
 }

@@ -63,13 +63,24 @@ describe("AureliaHttpResponseMessage Tests", () => {
                 "responseType": "json"
             }
         `);
+        // In a real HttpResponseMessage class, the 'content' property is provided by a getter function, but this function returns the same value as that held in the 'response' property
+        httpResponseMessage.content = httpResponseMessage.response;
         testAureliaHttpResponseMessage = new AureliaHttpResponseMessage(httpResponseMessage);
     });
 
     afterEach(() => { 
     });
 
-    // TODO: Implement test for the 'Content' getter
+    it("Content(): Success test.", done => {
+        expect(testAureliaHttpResponseMessage.Content.length).toBe(2);
+        expect(testAureliaHttpResponseMessage.Content[0].DisplayName).toBe("Bananas");
+        expect(testAureliaHttpResponseMessage.Content[0].PricePerUnit).toBe(450);
+        expect(testAureliaHttpResponseMessage.Content[0].Unit).toBe(2);
+        expect(testAureliaHttpResponseMessage.Content[1].DisplayName).toBe("Carrots");
+        expect(testAureliaHttpResponseMessage.Content[1].PricePerUnit).toBe(200);
+        expect(testAureliaHttpResponseMessage.Content[1].Unit).toBe(2);
+        done();
+    });
 
     it("MimeType(): Success test.", done => {
         expect(testAureliaHttpResponseMessage.MimeType).toBe("application/json");

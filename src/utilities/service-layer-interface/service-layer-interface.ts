@@ -109,7 +109,7 @@ export class ServiceLayerCallResult {
     }
 
     /**
-     * @name ServiceLayerCallResult
+     * @desc Creates a ServiceLayerCallResult.
      * 
      * @param {any} content - The HTTP response content.
      * @param {HttpContentType | null} contentMimeType - The MIME type of the HTTP response.
@@ -137,15 +137,6 @@ export class ServiceLayerCallResult {
  */
 export class ServiceLayerInterface {
 
-    // TODO:
-    //   checks on serviceLayerBaseUrl... e.g. ends with '/'
-    //   add defaultUiErrorMessage to construcor
-    //   Request headers
-    //   Ability to set bearer token etc... via HttpClient().configure() (see https://aurelia.io/docs/plugins/http-services#aurelia-http-client)
-    //   Add friendly/UI error message??
-    //   Add cancellation of an in progress service call
-    //   Think about putting Aurelia implementation classes into an aurelia sub folder
-
     /** Contains a mapping from a string representing a HTTP content type, to the equivalent HttpContentType enum for the content type */
     protected httpContentTypeStringValues: Map<string | null, HttpContentType>;
     /** An implementation of IHttpClient */
@@ -156,9 +147,9 @@ export class ServiceLayerInterface {
     protected defaultTimeout: number;
 
     /**
-     * @name ServiceLayerInterface
+     * @desc Creates a ServiceLayerInterface.
      * 
-     * @param {string} serviceLayerBaseUrl - The URL prefix to use for each call to the service layer.
+     * @param {HttpUrlPrefixBuilder} serviceLayerBaseUrl - The URL prefix to use for each call to the service layer.
      * @param {number} defaultTimeout - The default timeout length for each call to the service layer (in milliseconds).
      * @param {IHttpClient} httpClient - The HTTP client abstraction to use to make HTTP calls.
      */
@@ -176,7 +167,7 @@ export class ServiceLayerInterface {
      * @name CallServiceLayer
      * @desc Calls an application's service layer.
      * 
-     * @param {HttpUrlBuilder | HttpUrlPathAndQueryBuilder} urlBuider - The URL to call on the service layer.  Either a full URL, or a suffix (and query parameters) to the prefix defined on the constructor.
+     * @param {HttpUrlBuilder | HttpUrlPathAndQueryBuilder | string} urlOrUrlBuider - The URL to call on the service layer.  Can be either a full URL (represented by a HttpUrlBuilder object), a suffix (and query parameters) to the prefix defined on the constructor, or a string.
      * @param {HttpRequestMethod} httpMethod - The HTTP request method to use in the call.
      * @param {any} body - The message body.
      * @param {HttpContentType} bodyContentType - The content type of the message body.
@@ -185,7 +176,7 @@ export class ServiceLayerInterface {
      * @returns {Promise<ServiceLayerCallResult>} - A promise which resolves to a ServiceLayerCallResult object.
      */
     public CallServiceLayer(
-        urlBuider: HttpUrlBuilder | HttpUrlPathAndQueryBuilder, 
+        urlOrUrlBuider: HttpUrlBuilder | HttpUrlPathAndQueryBuilder | string, 
         httpMethod: HttpRequestMethod, 
         body: any = null,
         bodyContentType: HttpContentType = HttpContentType.Application_Json, 
@@ -197,10 +188,12 @@ export class ServiceLayerInterface {
 
         // Build the path
         let url: string;
-        if (urlBuider instanceof HttpUrlBuilder)
-            url = (<HttpUrlBuilder>urlBuider).Url;
-        else if (urlBuider instanceof HttpUrlPathAndQueryBuilder)
-            url = this.serviceLayerBaseUrl.UrlPrefix + (<HttpUrlPathAndQueryBuilder>urlBuider).PathAndQuery;
+        if (urlOrUrlBuider instanceof HttpUrlBuilder)
+            url = (<HttpUrlBuilder>urlOrUrlBuider).Url;
+        else if (urlOrUrlBuider instanceof HttpUrlPathAndQueryBuilder)
+            url = this.serviceLayerBaseUrl.UrlPrefix + (<HttpUrlPathAndQueryBuilder>urlOrUrlBuider).PathAndQuery;
+        else if (typeof(urlOrUrlBuider) === JavaScriptStringConstants.StringType)
+            url = urlOrUrlBuider;
         else
             throw new Error(`Parameter 'urlBuider' contains unhandled union type.`);
             
@@ -216,7 +209,7 @@ export class ServiceLayerInterface {
                 this.httpClient.Call(url, httpMethod, body, timeoutToUse)
                 .then((response: IHttpResponse ) : void => {
 
-                    if (this.httpContentTypeStringValues.has(response.MimeType) === false) {
+                    if ((response.MimeType !== null) && (this.httpContentTypeStringValues.has(response.MimeType) === false)) {
                         // Returned content/MIME type is not handled
                         let result: ServiceLayerCallResult = new ServiceLayerCallResult(
                             response.Content,
@@ -231,9 +224,13 @@ export class ServiceLayerInterface {
                     }
 
                     // Call was successful
+                    let contentMimeType: HttpContentType | null = null;
+                    if (response.MimeType !== null) {
+                        contentMimeType = <HttpContentType>this.httpContentTypeStringValues.get(response.MimeType);
+                    }
                     let result: ServiceLayerCallResult = new ServiceLayerCallResult(
                         response.Content,
-                        <HttpContentType>this.httpContentTypeStringValues.get(response.MimeType), 
+                        contentMimeType, 
                         response.StatusCode, 
                         response.StatusText, 
                         true,  
@@ -279,8 +276,7 @@ export class ServiceLayerInterface {
                                 response.StatusText, 
                                 false,  
                                 ServiceCallErrorType.Timeout, 
-                                // TODO: Potentially add 'after x seconds' if it's possible to
-                                `Call timed out attempting to connect to URL '${url}'.`
+                                `Call timed out attempting to connect to URL '${url}' after ${timeoutToUse} milliseconds.`
                             );
                             reject(result);
                         }

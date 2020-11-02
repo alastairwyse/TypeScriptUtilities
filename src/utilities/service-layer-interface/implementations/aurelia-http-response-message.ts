@@ -35,23 +35,33 @@ export class AureliaHttpResponseMessage implements IHttpResponse {
         this.httpResponseMessage = httpResponseMessage;
     }
 
+    /** @inheritdoc */
     get Content() : any {
+
         return this.httpResponseMessage.content;
     }
 
+    /** @inheritdoc */
     get MimeType() : string | null {
+
         return this.httpResponseMessage.mimeType;
     }
 
+    /** @inheritdoc */
     get ResponseType() : string {
+
         return this.httpResponseMessage.responseType;
     }
 
+    /** @inheritdoc */
     get StatusCode() : number {
+
         return this.httpResponseMessage.statusCode;
     }
 
+    /** @inheritdoc */
     get StatusText() : string {
+        
         return this.httpResponseMessage.statusText;
     }
 }

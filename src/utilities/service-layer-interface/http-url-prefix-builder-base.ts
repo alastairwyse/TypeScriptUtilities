@@ -80,10 +80,15 @@ export abstract class HttpUrlPrefixBuilderBase {
 
     /**
      * @desc Creates a HttpUrlPrefixBuilderBase.
+     * 
      * @param {UrlScheme} scheme - The URL scheme to use in the URL prefix.
      * @param {string} host - The (unencoded) host within the URL prefix.
      * @param {number} port - The port within the URL prefix.
      * @param {string} path - The (unencoded) path within the URL prefix.
+     * 
+     * @throws {Error} - Parameter 'host' cannot be a blank string.
+     * @throws {Error} - Parameter 'port' must be between 1 and 65535 inclusive.
+     * @throws {Error} - Parameter 'path' cannot start with a '/' character.
      */
     constructor(scheme: UrlScheme, host: string, port: number, path: string) {
         if (host.length == 0)

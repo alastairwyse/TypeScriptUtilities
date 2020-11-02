@@ -19,13 +19,14 @@ import { LogLevel } from './log-level';
 
 /**
  * @name CompositeLogger
- * @description Implementation of ILogger which holds and logs to multiple loggers (following the GoF Composite pattern).
+ * @desc Implementation of ILogger which holds and logs to multiple loggers (following the GoF Composite pattern).
  */
 export class CompositeLogger implements ILogger {
 
     /**
      * @param {Array<ILogger>} loggers - The collection of loggers to broadcast log entries to.
-     * @throws {Error} - Parameter 'loggers' is empty.
+     * 
+     * @throws {Error} - Parameter 'loggers' cannot be empty.
      */
     constructor(protected loggers: Array<ILogger>) {
         if (loggers.length === 0)
@@ -34,7 +35,7 @@ export class CompositeLogger implements ILogger {
 
     /**
      * @name Log
-     * @description Writes the log information.
+     * @desc Writes the log information.
      * 
      * @param {LogLevel} level - The level of importance of the log event.
      * @param {string} message - The details of the log event.

@@ -15,16 +15,18 @@
  */
 
 /**
- * @name ISessionIdProvider
- * @desc Defines methods for returning unique session ids.
+ * @name IBufferFlushAction
+ * @desc Defines methods and properties to flush a buffer.
+ * 
+ * @template T - The type of object stored in the buffer.
  */
-export interface ISessionIdProvider {
+export interface IBufferFlushAction<T> {
 
     /**
-     * @name GenerateId
-     * @desc Returns a unique session id.
-
-     * @returns {string} - The session id.
+     * @name Flush
+     * @desc Flushes the buffer... i.e. transfers all stored data to the destination, and clears all items stored in the buffer.
+     * 
+     * @param {IterableIterator<T>} bufferContents - The contents of the buffer.
      */
-    GenerateId() : string;
+    Flush(bufferContents: IterableIterator<T>) : void;
 }

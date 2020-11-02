@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import { MockSessionIdProviderImplementation } from './mock-session-id-provider-implementation';
+import * as moment from 'moment';
 import { MockDateTimeProviderImplementation } from './mock-date-time-provider-implementation';
 import { ISessionIdProvider } from '../../../../src/utilities/logging/isession-id-provider';
-import { IDateTimeProvider } from '../../../../src/utilities/logging/idate-time-provider'; 
+import { IDateTimeProvider } from '../../../../src/common/javascript-abstractions/idate-time-provider'; 
 import { LoggerBase } from '../../../../src/utilities/logging/logger-base';
 import { LogLevel } from '../../../../src/utilities/logging/log-level';
 
 /**
  * @name LoggerImplementation
- * @description Implementation of LoggerBase with protected methods made public so they can be unit tested.
+ * @desc Implementation of LoggerBase with protected methods made public so they can be unit tested.
  */
 class LoggerImplementation extends LoggerBase {
 
@@ -62,34 +62,45 @@ describe("LoggerBase Tests", () => {
     const testSessionId = "2293f78e-e5c7-4ea9-b51c-be23be100790";
     const testUserId = "user1234";
 
-    // TODO: Figure out how to get Jest mocks working on Moment, so I don't have to write my own mock implementations
-
     beforeEach(() => {
-        mockSessionIdProvider = new MockSessionIdProviderImplementation(testSessionId);
-        mockDateTimeProvider = new MockDateTimeProviderImplementation();
-        testLoggerBase = new LoggerImplementation(LogLevel.Debug, "|", "YYYY-MM-DDTHH:mm:ssZ", mockSessionIdProvider, testUserId, mockDateTimeProvider);
+        mockSessionIdProvider = jest.genMockFromModule("../../../../src/utilities/service-layer-interface/ihttp-client");
+        mockSessionIdProvider.GenerateId = jest.fn();
+        (<any>(mockSessionIdProvider.GenerateId)).mockReturnValue(testSessionId);
+        mockDateTimeProvider = new MockDateTimeProviderImplementation(moment("2019-11-30 17:43:00.000+09:00"));
+        testLoggerBase = new LoggerImplementation(LogLevel.Debug, mockSessionIdProvider, ":", "YYYY-MM-DDTHH:mm:ss", testUserId, mockDateTimeProvider);
     });
 
     afterEach(() => { 
     });
 
+    it("Constructor(): Parameters 'separatorString' and 'dateTimeFormat' have value defaulted when not specified.", done => {
+        testLoggerBase = new LoggerImplementation(
+            LogLevel.Information, 
+            mockSessionIdProvider
+        );
+
+        expect((<any>testLoggerBase).separatorString).toBe("|");
+        expect((<any>testLoggerBase).dateTimeFormat).toBe("YYYY-MM-DDTHH:mm:ss.SSSZ");
+        done();
+    });
+
     it("InitializeLogEntry(): Include userId success test.", done => {
         let result: string = testLoggerBase.InitializeLogEntry();
-        expect(result).toBe("user1234 | 2293f78e-e5c7-4ea9-b51c-be23be100790 | 2019-11-30T17:43:00.000+09:00 | ");
+        expect(result).toBe("user1234 : 2293f78e-e5c7-4ea9-b51c-be23be100790 : 2019-11-30T17:43:00 : ");
         done();
     });
 
     it("InitializeLogEntry(): Exclude userId success test.", done => {
-        testLoggerBase = new LoggerImplementation(LogLevel.Debug, "|", "YYYY-MM-DDTHH:mm:ssZ", mockSessionIdProvider, undefined, mockDateTimeProvider);
+        testLoggerBase = new LoggerImplementation(LogLevel.Debug, mockSessionIdProvider, "|", "YYYY-MM-DDTHH:mm:ssZ", undefined, mockDateTimeProvider);
         let result: string = testLoggerBase.InitializeLogEntry();
-        expect(result).toBe("2293f78e-e5c7-4ea9-b51c-be23be100790 | 2019-11-30T17:43:00.000+09:00 | ");
+        expect(result).toBe("2293f78e-e5c7-4ea9-b51c-be23be100790 | 2019-11-30T17:43:00+09:00 | ");
         done();
     });
 
     it("InitializeLogEntry(): String session id success test.", done => {
-        testLoggerBase = new LoggerImplementation(LogLevel.Debug, "|", "YYYY-MM-DDTHH:mm:ssZ", "overridden-session-id", testUserId, mockDateTimeProvider);
+        testLoggerBase = new LoggerImplementation(LogLevel.Debug, "overridden-session-id", "|", "YYYY-MM-DDTHH:mm:ssZ", testUserId, mockDateTimeProvider);
         let result: string = testLoggerBase.InitializeLogEntry();
-        expect(result).toBe("user1234 | overridden-session-id | 2019-11-30T17:43:00.000+09:00 | ");
+        expect(result).toBe("user1234 | overridden-session-id | 2019-11-30T17:43:00+09:00 | ");
         done();
     });
 
@@ -98,7 +109,7 @@ describe("LoggerBase Tests", () => {
 
         result = testLoggerBase.AppendLogLevel(result, LogLevel.Warning);
 
-        expect(result).toBe("user1234 | 2293f78e-e5c7-4ea9-b51c-be23be100790 | 2019-11-30T17:43:00.000+09:00 | Warning | ");
+        expect(result).toBe("user1234 : 2293f78e-e5c7-4ea9-b51c-be23be100790 : 2019-11-30T17:43:00 : Warning : ");
         done();
     });
 
@@ -108,7 +119,7 @@ describe("LoggerBase Tests", () => {
 
         result = testLoggerBase.AppendLogMessage(result, "Call timed out attempting to connect to URL 'www.example.com'.");
 
-        expect(result).toBe("user1234 | 2293f78e-e5c7-4ea9-b51c-be23be100790 | 2019-11-30T17:43:00.000+09:00 | Critical | Call timed out attempting to connect to URL 'www.example.com'.");
+        expect(result).toBe("user1234 : 2293f78e-e5c7-4ea9-b51c-be23be100790 : 2019-11-30T17:43:00 : Critical : Call timed out attempting to connect to URL 'www.example.com'.");
         done();
     }); 
 
@@ -120,12 +131,12 @@ describe("LoggerBase Tests", () => {
 
         result = testLoggerBase.AppendError(result, testError);
 
-        expect(result).toBe("user1234 | 2293f78e-e5c7-4ea9-b51c-be23be100790 | 2019-11-30T17:43:00.000+09:00 | Critical | Call timed out attempting to connect to URL 'www.example.com'. | Error text.");
+        expect(result).toBe("user1234 : 2293f78e-e5c7-4ea9-b51c-be23be100790 : 2019-11-30T17:43:00 : Critical : Call timed out attempting to connect to URL 'www.example.com'. : Error text.");
         done();
     }); 
     
     it("LogLevelIsGreaterThanOrEqualToMinimum(): Success tests.", done => {
-        testLoggerBase = new LoggerImplementation(LogLevel.Warning, "|", "YYYY-MM-DDTHH:mm:ssZ", mockSessionIdProvider, testUserId, mockDateTimeProvider);
+        testLoggerBase = new LoggerImplementation(LogLevel.Warning, mockSessionIdProvider, "|", "YYYY-MM-DDTHH:mm:ssZ", testUserId, mockDateTimeProvider);
         expect(testLoggerBase.LogLevelIsGreaterThanOrEqualToMinimum(LogLevel.Debug)).toBe(false);
         expect(testLoggerBase.LogLevelIsGreaterThanOrEqualToMinimum(LogLevel.Information)).toBe(false);
         expect(testLoggerBase.LogLevelIsGreaterThanOrEqualToMinimum(LogLevel.Warning)).toBe(true);

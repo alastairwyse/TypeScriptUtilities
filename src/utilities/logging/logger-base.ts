@@ -16,14 +16,14 @@
 
 import { JavaScriptStringConstants } from '../../common/javascript-string-constants'; 
 import { ISessionIdProvider } from './isession-id-provider';
-import { IDateTimeProvider } from './idate-time-provider';
+import { IDateTimeProvider } from '../../common/javascript-abstractions/idate-time-provider';
 import { ILogger } from './ilogger';
-import { DefaultDateTimeProvider } from './default-date-time-provider';
+import { DefaultDateTimeProvider } from '../../common/javascript-abstractions/default-date-time-provider';
 import { LogLevel } from './log-level';
 
 /**
  * @name LoggerBase
- * @description Provides common functionality for implementations of the ILogger interface.
+ * @desc Provides common functionality for implementations of the ILogger interface.
  */
 export abstract class LoggerBase implements ILogger {
 
@@ -44,17 +44,17 @@ export abstract class LoggerBase implements ILogger {
 
     /**
      * @param {LogLevel} minimumLogLevel - The minimum level of log entries to write.  Log entries with a level of importance lower than this will not be written.
+     * @param {string | ISessionIdProvider} sessionIdOrProvider - A unique session id to include in the log entry, or an implementation of interface ISessionIdProvider, to provide unique session ids.
      * @param {string} separatorString - The string to use to separate fields (e.g. date/time stamp, log level, log text) within a log entry.
      * @param {string} dateTimeFormat - A Moment.js-compatible format string to use to format dates and times in the resulting logging information.
-     * @param {string | ISessionIdProvider} sessionIdOrProvider - A unique session id to include in the log entry, or an implementation of interface ISessionIdProvider, to provide unique session ids.
      * @param {string} [userId] - (Optional) A unique identifier for the current user.
      * @param {IDateTimeProvider} [dateTimeProvider] - (Optional) An implementation of interface IDateTimeProvider, to provide the formatted current date and time.
      */
     constructor(
         minimumLogLevel: LogLevel, 
+        sessionIdOrProvider: string | ISessionIdProvider, 
         separatorString: string = "|", 
         dateTimeFormat: string = "YYYY-MM-DDTHH:mm:ss.SSSZ", 
-        sessionIdOrProvider: string | ISessionIdProvider, 
         userId?: string, 
         dateTimeProvider?: IDateTimeProvider
     ) {
@@ -84,7 +84,7 @@ export abstract class LoggerBase implements ILogger {
 
     /**
      * @name Log
-     * @description Writes the log information.
+     * @desc Writes the log information.
      * 
      * @param {LogLevel} level - The level of importance of the log event.
      * @param {string} message - The details of the log event.
@@ -94,7 +94,7 @@ export abstract class LoggerBase implements ILogger {
 
    /**
      * @name InitializeLogEntry
-     * @description Creates the first part of a log entry string (current date and separator character).
+     * @desc Creates the first part of a log entry string (current date and separator character).
      * 
      * @returns {string} - The first part of a log entry string.
      */
@@ -111,7 +111,7 @@ export abstract class LoggerBase implements ILogger {
 
     /**
      * @name AppendLogLevel
-     * @description Appends the specified log level to an existing log entry.
+     * @desc Appends the specified log level to an existing log entry.
      * 
      * @param {string} logEntry - The existing log entry.
      * @param {LogLevel} logLevel - The log level to append.
@@ -124,7 +124,7 @@ export abstract class LoggerBase implements ILogger {
 
     /**
      * @name AppendLogMessage
-     * @description Appends the specified message to an existing log entry.
+     * @desc Appends the specified message to an existing log entry.
      * 
      * @param {string} logEntry - The existing log entry.
      * @param {string} logMessage - The log message to append.
@@ -137,7 +137,7 @@ export abstract class LoggerBase implements ILogger {
 
     /**
      * @name AppendError
-     * @description Appends details from the the specified error to an existing log entry.
+     * @desc Appends details from the the specified error to an existing log entry.
      * 
      * @param {string} logEntry - The existing log entry.
      * @param {Error} error - The error to append details of.
@@ -150,11 +150,13 @@ export abstract class LoggerBase implements ILogger {
 
     /**
      * @name LogLevelIsGreaterThanOrEqualToMinimum
-     * @description Returns true if the specified log level has a greater or equal important compared to member 'minimumLogLevel'.
+     * @desc Returns true if the specified log level has a greater or equal important compared to member 'minimumLogLevel'.
      * 
      * @param {LogLevel} logLevelToCompare - The log level to compare.
      * 
      * @returns {boolean} - True if the specified log level has a greater or equal important compared to member 'minimumLogLevel'.  False otherwise.
+     * 
+     * @throws {Error} - Failed to find parameter 'logLevelToCompare' value in member 'minimumLogLevel'.
      */
     protected LogLevelIsGreaterThanOrEqualToMinimum(logLevelToCompare: LogLevel) : boolean {
 

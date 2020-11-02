@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-import * as moment from 'moment';
-import { IDateTimeProvider } from './idate-time-provider';
-
 /**
- * @name DefaultDateTimeProvider
- * @description A default implementation of interface IDateTimeProvider using the Moment.js library.
+ * @name IDateTimeProvider
+ * @desc Defines methods for returning the current date and time.
  */
-export class DefaultDateTimeProvider implements IDateTimeProvider {
+export interface IDateTimeProvider {
 
-     GetCurrentDateTime(format: string): string {
-         return moment().format(format);
-     }
+    /**
+     * @name GetCurrentDateTime
+     * @desc Returns the current date and time as a formatted string.
+     * 
+     * @param {string} format - The format to return the date and time in (in the formats supported by moment.js... see https://momentjs.com/docs/#/displaying/format/).
+     * 
+     * @returns {string} - The current date and time.
+     */
+    GetCurrentDateTime(format: string) : string;
 }

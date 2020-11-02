@@ -14,18 +14,31 @@
  * limitations under the License.
  */
 
-import { ISessionIdProvider } from '../../../../src/utilities/logging/isession-id-provider'; 
-
 /**
- * @name MockSessionIdProviderImplementation
- * @description Mock implementation of ISessionIdProvider for testing.
+ * @name IBuffer
+ * @desc Defines methods for bufferring data.
+ * 
+ * @template T - The type of object stored in the buffer.
  */
-export class MockSessionIdProviderImplementation implements ISessionIdProvider {
+export interface IBuffer<T> {
 
-    constructor(protected mockSessionId: string) {
-    }
+    /**
+     * @name ItemCount
+     * @returns {number} - The number of items currently stored in the buffer.
+     */
+    readonly ItemCount : number;
 
-    GenerateId() : string {
-        return this.mockSessionId;
-    }
+    /**
+     * @name Add
+     * @desc Adds an item to the buffer.
+     * 
+     * @param {T} item - The item to add to the buffer.
+     */
+    Add(item: T) : void;
+
+    /**
+     * @name Flush
+     * @desc Flushes the buffer... i.e. transfers all stored data to the destination, and clears all items stored in the buffer.
+     */
+    Flush() : void;
 }

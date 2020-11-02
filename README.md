@@ -5,6 +5,8 @@ Utility classes for TypeScript web applications.
 
 ## Contents
 
+---
+
 ### :: ContainerObjectTypeValidator ::
 
 TypeScript allows un-typed objects returned from API calls to be simply assigned to strongly typed objects.  E.g for the class StoreCatalogueItem...
@@ -35,7 +37,7 @@ Even though 'myCatalogueItem' is explicitly declared as a StoreCatalogueItem, 'u
 
 This can be problematic in large web applications, especially when you're consuming 3rd party APIs where you don't have control over the content and quality of the data you're consuming.  The issue above may not trigger an application error until a long time after the API is initially read, which can then lead to difficulty identifying where and how the object got into an invalid state (i.e. did it come from the API that way, or was it somehow changed by subsequent code)... which ultimately leads to code which is harder to debug and maintain.
 
-The purpose of the ContainerObjectTypeValidator class is to provide runtime type validation and conversion of untyped ('any') objects, based on a succint class type definition.  Using the class to validate and convert un-typed objects obtained at runtime (especially from API/service calls) allows...
+The purpose of the [ContainerObjectTypeValidator](src/utilities/data-validation/container-object-type-validator.ts) class is to provide runtime type validation and conversion of untyped ('any') objects, based on a succint class type definition.  Using the class to validate and convert un-typed objects obtained at runtime (especially from API/service calls) allows...
 * Identifying incorrectly-typed and missing data at the perimeter of your application before objects are used internally 
 * Throwing clear, detailed errors as soon as any incorrectly-typed and missing data issues are detected
 
@@ -426,7 +428,6 @@ console.log(returnedNullableDate);
 //   Date Mon Oct 21 2019 09:00:00 GMT+0900
 ```
 
-
 #### Validating and converting arrays of nullable types...
 
 ```typescript
@@ -560,9 +561,11 @@ let returnedStock2: StockWithTypeConversionDefinition = containerObjectTypeValid
 console.log(returnedStock2); 
 ```
 
+---
+
 ### :: ServiceLayerInterface ::
 
-The original goal of this class was to create a wrapper around [Aurelia's](https://aurelia.io/) [HttpClient](https://aurelia.io/docs/plugins/http-services#aurelia-http-client) class for calling REST-based application service layers which return JSON content.  The Aurelia HttpClient is quite good, and definitely more immediately useable than the XMLHttpRequest object.  However, one area where it could be better is with error handling... different TCP/HTTP errors are expressed through different combinations of the 'responseType', 'statusCode', and 'isSuccess' properties of the returned HttpResponseMessage class.  The ServiceLayerInterface class consolidates (hopefully) all the things that could go wrong in a call to a service layer, into enum ServiceCallErrorType and returns this along with a detailed error message.  The ServiceCallErrorType enum values (and associated meanings) are...
+The original goal of the [ServiceLayerInterface](src/utilities/service-layer-interface/service-layer-interface.ts) class was to create a wrapper around [Aurelia's](https://aurelia.io/) [HttpClient](https://aurelia.io/docs/plugins/http-services#aurelia-http-client) class for calling REST-based application service layers which return JSON content.  The Aurelia HttpClient is quite good, and definitely more immediately useable than the XMLHttpRequest object.  However, one area where it could be better is with error handling... different TCP/HTTP errors are expressed through different combinations of the 'responseType', 'statusCode', and 'isSuccess' properties of the returned HttpResponseMessage class.  The ServiceLayerInterface class consolidates all the possible error scenarios resulting from a call to a service layer into enum ServiceCallErrorType, and returns this along with a detailed error message.  The ServiceCallErrorType enum values (and associated meanings) are...
 
 <table>
   <tr>
@@ -591,11 +594,12 @@ The original goal of this class was to create a wrapper around [Aurelia's](https
   </tr>
 </table>
 
-ServiceLayerInterface has since been enhanced to optionally wrap [Angular's](https://angular.io/) [HttpClient](https://angular.io/api/common/http/HttpClient).  
+Functionaliy has since been enhanced to optionally wrap [Angular's](https://angular.io/) [HttpClient](https://angular.io/api/common/http/HttpClient).  
 
 ### In Use
 
-The below examples are created with the AureliaHttpClient, but the results and contents of ServiceLayerCallResult class are the same when using the AngularHttpClient.
+The below examples were created with the [AureliaHttpClient wrapper](src/utilities/service-layer-interface/implementations/aurelia-http-client.ts), but the results and contents of ServiceLayerCallResult class are the same when using the equivalent [AngularHttpClient wrapper](src/utilities/service-layer-interface/implementations/angular-http-client.ts).  Both these wrapper classes implement interface IHttpClient.  Testing was performed against versions 1.3.1 and 8.2.14 of the underlying [Aurelia](https://aurelia.io/) [HttpClient](https://aurelia.io/docs/plugins/http-services#aurelia-http-client) and Angular [Angular](https://angular.io/) [HttpClients](https://angular.io/api/common/http/HttpClient) respectively. 
+
 
 #### Success case...
 
@@ -712,9 +716,55 @@ serviceLayerInterface.CallServiceLayer(
     Error type: ConnectionFailed 
     Error message: Failed to connect to URL 'http://localhost:51490/api/CatalogueItems/'.
 
+#### Calling CallServiceLayer() using async / await and try / catch...
+
+If the actual HTTP client within the IHttpClient implementation throws errors on failure, CallServiceLayer() can be called from an asynchronous function using standard try / catch blocks. In this case the catch block's parameter will be populated with a ServiceLayerCallResult class (below example uses the [AngularHttpClient](src/utilities/service-layer-interface/implementations/angular-http-client.ts) with does throw an error on failure)...
+
+```typescript
+let result: ServiceLayerCallResult;
+try { 
+    result = await this.serviceLayerInterface.CallServiceLayer
+    (
+        new HttpUrlPathAndQueryBuilder("CatalogueItemz"), 
+        HttpRequestMethod.Get
+    );
+}
+catch (e) {
+    result = <ServiceLayerCallResult>(e);
+    console.log("Call failed...");
+    console.log("Error type: " + result.ErrorType);
+    console.log("Error message: " + result.SystemErrorMessage);
+    throw new Error(result.SystemErrorMessage);
+}
+
+console.log("Call was successful...");
+console.log(result.Content);
+```
+
+#### Setup for Angular...
+
+Setup for Angular is similar to the Aurelia example above, but requires creating an instance of the [AngularHttpClient](src/utilities/service-layer-interface/implementations/angular-http-client.ts) class.  The below 'ServiceLayerService' class is an [Angular service](https://angular.io/tutorial/toh-pt4)...
+
+```typescript
+@Injectable({
+    providedIn: 'root'
+})
+export class ServiceLayerService {
+
+    protected serviceLayerInterface: ServiceLayerInterface;
+
+    constructor(private httpClient: HttpClient) { 
+
+        let httpUrlPrefixBuilder = new HttpUrlPrefixBuilder(UrlScheme.Http, "localhost", 51499, "api/");
+        // The 'httpClient' parameter comes from Angular dependency injection (https://angular.io/guide/dependency-injection)
+        let angularHttpClient = new AngularHttpClient(httpClient);
+        this.serviceLayerInterface = new ServiceLayerInterface(httpUrlPrefixBuilder, 5000, angularHttpClient);
+    }
+```
+
 #### Contents of the ServiceLayerCallResult class...
 
-The Call() method returns a Promise which resolves to a ServiceLayerCallResult class which contains details of the results of the service layer call...
+The CallServiceLayer() method returns a Promise which resolves to a ServiceLayerCallResult class which contains details of the results of the service layer call...
 
 ```typescript
 serviceLayerInterface.CallServiceLayer(
@@ -749,16 +799,221 @@ serviceLayerInterface.CallServiceLayer(
 
 #### Defining a base/prefix URL for the service layer...
 
-A base/prefix URL for the service layer can be defined on the ServiceLayerInterface constructor via the 'serviceLayerBaseUrl' parameter.  The CallServiceLayer() method accepts a 'urlBuider' parameter which can be either a HttpUrlPathAndQueryBuilder object (which represents a path suffix and optional query parameters which are appended to the base URL), or a HttpUrlBuilder object which contains a full URL and will override the base/prefix URL set on the constructor.
-
-#### The IHttpClient interface...
-
-The ServiceLayerInterface class accepts an IHttpClient parameter in its constructor.  The idea with this interface was to provide a standardized abstraction of other classes which make direct HTTP calls.  Currently an implementations of this are provided which use the [Aurelia](https://aurelia.io/) [HttpClient](https://aurelia.io/docs/plugins/http-services#aurelia-http-client) (class AureliaHttpClient), and the [Angular](https://angular.io/) [HttpClient](https://angular.io/api/common/http/HttpClient) (class AngularHttpClient).  Testing was performed again versions 1.3.1 and 8.2.14 of the Aurelia and Angular HTTP clients respectively. 
+A base/prefix URL for the service layer can be defined on the ServiceLayerInterface constructor via the 'serviceLayerBaseUrl' parameter.  The CallServiceLayer() method accepts a 'urlBuider' parameter which can be either a [HttpUrlPathAndQueryBuilder](src/utilities/service-layer-interface/http-url-path-and-query-builder.ts) object (which represents a path suffix and optional query parameters which are appended to the base URL), or a [HttpUrlBuilder](src/utilities/service-layer-interface/http-url-builder.ts) object which contains a full URL and will override the base/prefix URL set on the constructor.
 
 #### The HttpUrlBuilder, HttpUrlPathAndQueryBuilder, and HttpUrlPrefixBuilder classes...
 
 These classes are losely based on the [UriBuilder](https://docs.microsoft.com/en-us/dotnet/api/system.uribuilder?view=netframework-4.8) class in .NET, and place more structure around the creation of URLs... with the goal being to reduce typos and resulting runtime errors which can occur when URLs are created and concatenated as simple unstructured strings.
 
+---
+
+### :: Buffering ::
+
+The [buffering](src/utilities/buffering/) folder contains classes which implement basic buffering functionality... i.e. to store data, and then take some periodic action to process the data and clear the store (e.g. store log data and periodically send it to an API endpoint).  The classes are designed to be as extensible as possible, so both the processing action (a buffer 'flush') and the timing of the action can be custom-defined by implementing interfaces... [IBufferFlushAction](src/utilities/buffering/ibuffer-flush-action.ts) for the action, and [IBufferFlushStrategy](src/utilities/buffering/ibuffer-flush-strategy.ts) for the timimg.
+
+### Classes
+
+#### Buffer<T>
+
+This is the top level class which implements the buffer.  Generic type variable 'T' represents the type of data which should be stored in the buffer.  The class exposes public methods to Add() items to the buffer and to manually Flush() the buffer, aswell as a getter for the number of items stored.  Its constructor requires implementations of a flush strategy (i.e. when to flush), and a flush action (i.e. what to do).
+
+#### SizeLimitedBufferFlushStrategy<T>
+
+This is a buffer flush strategy which flushes the buffer each time the number of buffered items reaches a specified threshold.  E.g. in a scenario where a Buffer<T> is used to send logging or metric data to an API endpoint, SizeLimitedBufferFlushStrategy could be used to ensure that the size of the data collection sent to the API (i.e. equivalent to the buffer contents) is consistent between calls.  Generic type variable 'T' should be the same as for the Buffer<T> instance into which the instance of this class is injected.
+
+#### TimedLoopBufferFlushStrategy<T> 
+
+This is a buffer flush strategy which flushes the buffer at a regular, specified time interval using JavaScript's setTimeout() method.   An appropriate use case might be where a Buffer<T> is used to send logging or metric data to an API endpoint, and you want to ensure that data is sent on a regular basis (e.g. even in the absence of any user interaction or activity).  Generic type variable 'T' should be the same as for the Buffer<T> instance into which the instance of this class is injected.
+
+#### BufferFlushStrategyBase<T>
+
+This is a base class which can be used for custom implementations of IBufferFlushStrategy<T>.
+
+### In Use
+
+The Buffer<T> class requires an implementation of IBufferFlushAction<T> in its constructor.  In a TypeScript web application, a typical use for the Buffer class would be to write buffered data to an API endpoint, or potentially write buffered information to the console.  The sample implementation below (from [samples.ts](src/samples/samples.ts)) writes buffered strings to the console...
+
+```typescript
+class WriteToConsoleBufferFlushAction implements IBufferFlushAction<string> {
+
+    /** @inheritdoc */
+    Flush(bufferContents: IterableIterator<string>): void {
+
+        for (let currentItem of Array.from(bufferContents)) {
+            console.log(currentItem);
+        }
+    }
+}
+```
+
+... this class can then be instantiated, and that instance injected into a Buffer<T> instance and used as follows...
+
+```typescript
+// Create the Buffer instance
+let bufferFlushStrategy = new SizeLimitedBufferFlushStrategy(5);
+let bufferFlushAction = new WriteToConsoleBufferFlushAction();
+let buffer = new Buffer<string>(bufferFlushStrategy, bufferFlushAction);
+
+// Buffer some data...
+buffer.Add("The");
+buffer.Add("quick");
+buffer.Add("brown");
+buffer.Add("fox");
+setTimeout(() => { buffer.Add("jumps"); }, 5000);
+```
+
+...the following is written to the console on the fifth call to Add()...
+
+    The
+    quick
+    brown
+    fox
+    jumps
+
+---
+
+### :: Logging ::
+
+The [logging](src/utilities/logging/) folder contains classes which implement logging for web applications... arguably slightly more comprehensive and structured than those found in many JavaScript frameworks.  The ILogger interface is central to the logging functionality, and defines a single Log() method for capturing log information and events.
+
+### Classes
+
+#### LoggerBase
+
+A base class which can be used for custom implementations of the ILogger interface.  Contains utility methods for creating and appending data to log entries.  Is used by both the ConsoleLogger and BufferedLogger classes.
+
+The below table explains the constructor parameters (which are also used by the ConsoleLogger and BufferedLogger classes)...
+
+<table>
+  <tr>
+    <td><b>Name</b></td>
+    <td><b>Type</b></td>
+    <td><b>Description</b></td>
+  </tr>
+  <tr>
+    <td valign="top">minimumLogLevel</td>
+    <td valign="top">LogLevel</td>
+    <td>The minimum level of log entries to write.  Log entries with a level of importance lower than this will not be written.</td>
+  </tr>
+  <tr>
+    <td valign="top">sessionIdOrProvider</td>
+    <td valign="top">string | ISessionIdProvider</td>
+    <td>A unique session id to include in the log entry, or an implementation of interface ISessionIdProvider, to provide unique session ids.  A class UuidSessionIdProvider is included (implementing ISessionIdProvider) to generate UUID session ids.</td>
+  </tr>
+  <tr>
+    <td valign="top">separatorString</td>
+    <td valign="top">string</td>
+    <td>The string to insert between the components (session id, date/time, log text, etc...) within a log entry. Set to the pipe character ('|') by default.</td>
+  </tr>
+  <tr>
+    <td valign="top">dateTimeFormat</td>
+    <td valign="top">string</td>
+    <td>A Moment.js-compatible format string to use to format dates and times within the log entries.  Set to 'YYYY-MM-DDTHH:mm:ss.SSSZ' by default.</td>
+  </tr>
+  <tr>
+    <td valign="top">userId</td>
+    <td valign="top">string</td>
+    <td>Optional, and can be set to an id for the user in the current session, for authenticated web applications where the current user is known.</td>
+  </tr>
+</table>
+
+#### ConsoleLogger
+
+A basic implementation of ILogger which writes log entries to the system/browser console.
+
+#### BufferedLogger
+
+An ILogger which utilises the buffering functionality (described above) to buffer log entries before processing them.  The classes uses an underlying Buffer<T>, so [IBufferFlushAction<string>](src/utilities/buffering/ibuffer-flush-action.ts) and [IBufferFlushStrategy<string>](src/utilities/buffering/ibuffer-flush-strategy.ts) implementations must be set on the constructor to define when and how the buffer should be processed.  As with Buffer<T> either the [TimedLoopBufferFlushStrategy](src/utilities/buffering/timed-loop-buffer-flush-strategy.ts) or [SizeLimitedBufferFlushStrategy](src/utilities/buffering/size-limited-buffer-flush-strategy.ts) buffer strategies can be used (or a custom strategy defined).  A typical use of this class would be to send client-side logs to an API endpoint, but only sending on a periodic basis.
+
+#### CompositeLogger
+
+This class implements ILogger, and broadcasts/distributes Log() method calls to multiple underlying implementations of ILogger.  Basically it can be used to distribute log events to multiple ILoggers... e.g. to both the local system/browser console, and a server-side API endpoint.
+
+### In Use
+
+The BufferedLogger class requires an implementation of IBufferFlushAction<string> in its constructor.  The [samples.ts](src/samples/samples.ts) file includes a sample implementation of this interface which writes log entries to a sample API endpoint...
+
+```typescript
+class LogWriterBufferFlushAction implements IBufferFlushAction<string> {
+
+    protected serviceLayerInterface: ServiceLayerInterface;
+
+    constructor() {
+        this.serviceLayerInterface = new ServiceLayerInterface(
+            new HttpUrlPrefixBuilder(UrlScheme.Http, "localhost", 51499, "api/"), 
+            10000,
+            new AureliaHttpClient()
+        );
+    }
+
+    /** @inheritdoc */
+    Flush(bufferContents: IterableIterator<string>): void {
+
+        this.serviceLayerInterface.CallServiceLayer(
+            new HttpUrlPathAndQueryBuilder("UiLogs/"),  
+            HttpRequestMethod.Put, 
+            // Body of service layer call is passed the buffer contents
+            Array.from(bufferContents), 
+            HttpContentType.Application_Json, 
+        )
+        .catch((serviceLayerCallResult: ServiceLayerCallResult) => {
+            throw new Error(serviceLayerCallResult.SystemErrorMessage);
+        });
+    }
+}
+```
+
+... the LoggingSamples class then generates an instance of this class that is injected into a BufferedLogger and used alongside a ConsoleLogger, utilising the CompositeLogger class to send log entries to both...
+
+```typescript
+// Create a UUID session id up-front, so the same session id can be used in both ILogger instances
+let sessionIdProvider = new UuidSessionIdProvider();
+let sessionId: string = sessionIdProvider.GenerateId();
+let bufferFlushStrategy = new TimedLoopBufferFlushStrategy(10000);
+
+// The ConsoleLogger will write log events to the browser/system console immediately
+let consoleLogger = new ConsoleLogger
+(
+    LogLevel.Information, 
+    sessionId
+);
+
+// The BufferedLogger will write log events to an API endpoint (implemented in the LogWriterBufferFlushAction class) in a 10 second timed loop
+let bufferedLogger = new BufferedLogger
+(
+    bufferFlushStrategy, 
+    new LogWriterBufferFlushAction(), 
+    LogLevel.Information, 
+    sessionId
+)
+
+// The CompositeLogger simply distributes / broadcasts logs to both of the above loggers
+let compositeLogger = new CompositeLogger([ consoleLogger, bufferedLogger ]);
+
+// The worker process in the TimedLoopBufferFlushStrategy class needs to be started
+bufferFlushStrategy.Start();
+
+// Write 2 log events immediately, and then another two after a 15 second pause...
+compositeLogger.Log(LogLevel.Information, "Item 1");
+compositeLogger.Log(LogLevel.Information, "Item 2");
+setTimeout(() => {
+    compositeLogger.Log(LogLevel.Information, "Item 3");
+    compositeLogger.Log(LogLevel.Information, "Item 4");
+    }, 
+    15000
+);
+```
+
+...the following is written to the console...
+
+    7368a5f4-8c7e-4b48-a755-dc84fa8de6bd | 2020-10-27T23:38:59.482+09:00 | Information | Item 1
+    7368a5f4-8c7e-4b48-a755-dc84fa8de6bd | 2020-10-27T23:38:59.484+09:00 | Information | Item 2
+    7368a5f4-8c7e-4b48-a755-dc84fa8de6bd | 2020-10-27T23:39:14.486+09:00 | Information | Item 3
+    7368a5f4-8c7e-4b48-a755-dc84fa8de6bd | 2020-10-27T23:39:14.487+09:00 | Information | Item 4
+
+... and the same data written to the API endpoint in a 10 second loop.
+
+---
 
 ## Installing
 Use the *npm install* command from the project root folder to restore dependent packages.
@@ -774,11 +1029,11 @@ ContainerObjectTypeValidator
 - Check whether 2d Arrays can be validated, and implement if they can't
 
 ServiceLayerInterface
-- Consider adding a string override to CallServiceLayer() 'urlBuider' parameter 
-- Add an implementation of IHttpClient using the XMLHttpRequest object
+- Finish implementation of XhrHttpClient
 - Add support for returned HTTP content types other than 'application/json'
-- Add samples
 - Add injectable logger instance to ServiceLayerInterface constructor
+- Consider whether IHttpClient needs to support passthrough setting of custom HTTP headers (e.g. for OAuth bearer tokens)
+- Consider supporting cancellation of an in-progress service call
 
 General
 - Look at using TypeScript [Namespaces](https://www.typescriptlang.org/docs/handbook/namespaces.html)
@@ -792,6 +1047,14 @@ General
         <td><b>Changes</b></td>
     </tr>
     <tr>
+        <td valign="top">0.2.0</td>
+        <td>
+            Adding Buffering.<br />
+            Adding BufferedLogger.<br />
+            ServiceLayerInterface allows MIME types returned from the CallServiceLayer() method to be null (e.g. in the case of PUT or POST calls).<br />
+            ServiceLayerInterface.CallServiceLayer() parameter 'urlOrUrlBuider' can be set to a string containing the full URL of the service layer call.<br />
+            Added samples for Buffering and Logging.<br />
+        </td>
         <td valign="top">0.1.0</td>
         <td>
             Started using version numbers.<br />

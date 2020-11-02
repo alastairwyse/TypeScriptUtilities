@@ -18,13 +18,13 @@ import { LogLevel } from './log-level';
 
 /**
  * @name ILogger
- * @description Defines methods to record log events and information about an application (e.g. operational information, status, error/exception information, debug, etc...).
+ * @desc Defines methods to record log events and information about an application (e.g. operational information, status, error/exception information, debug, etc...).
  */
 export interface ILogger {
 
     /**
      * @name Log
-     * @description Writes the log information.
+     * @desc Writes the log information.
      * 
      * @param {LogLevel} level - The level of importance of the log event.
      * @param {string} message - The details of the log event.

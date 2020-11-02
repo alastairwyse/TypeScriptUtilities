@@ -60,8 +60,11 @@ export abstract class HttpUrlPathAndQueryBuilderBase {
 
     /**
      * @desc Creates a HttpUrlPathAndQueryBuilderBase.
+     * 
      * @param {string} path - The path within the URL.
-     * @param {Array<[ string, string ]>} queryParameters - The query parameters to include in the URL.
+     * @param {Array<[ string, string ]>} queryParameters - The query parameters to include in the URL as a collection of name/value pairs.
+     * 
+     * @throws {Error} - Parameter 'path' cannot contain a trailling '/' character, when query parameters are included.
      */
     constructor(path: string, queryParameters: Array<[ string, string ]> = []) {
         if (path.length > 0 && path[path.length - 1] === "/" && queryParameters.length > 0)

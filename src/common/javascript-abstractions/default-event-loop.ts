@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
+import { IEventLoop } from './ievent-loop';
+
 /**
- * @name ISessionIdProvider
- * @desc Defines methods for returning unique session ids.
+ * @name DefaultEventLoop
+ * @desc Default implementation of the IEventLoop interface.  Passes method calls to JavaScript's event loop.
  */
-export interface ISessionIdProvider {
+export class DefaultEventLoop implements IEventLoop {
 
-    /**
-     * @name GenerateId
-     * @desc Returns a unique session id.
+    /** @inheritdoc */
+    SetTimeout(func: Function, delay?: number | undefined, ...params: any[]): number {
+        
+        return setTimeout(func, delay, params);
+    }
 
-     * @returns {string} - The session id.
-     */
-    GenerateId() : string;
+    /** @inheritdoc */
+    ClearTimeout(timeoutId: number): void {
+        
+        clearTimeout(timeoutId);
+    }
 }

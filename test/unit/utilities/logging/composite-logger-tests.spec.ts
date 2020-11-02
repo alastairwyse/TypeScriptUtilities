@@ -20,7 +20,7 @@ import { CompositeLogger } from '../../../../src/utilities/logging/composite-log
 
 /**
  * @name MockLoggerImplementation
- * @description Mock implementation of ILogger for testing.
+ * @desc Mock implementation of ILogger for testing.
  */
 class MockLoggerImplementation implements ILogger {
 

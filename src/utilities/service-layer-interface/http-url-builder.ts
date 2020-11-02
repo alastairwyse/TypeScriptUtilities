@@ -43,6 +43,7 @@ export class HttpUrlBuilder {
 
     /**
      * @desc Creates a HttpUrlBuilder.
+     * 
      * @param {UrlScheme} scheme - The URL scheme to use in the URL.
      * @param {string} host - The host within the URL.
      * @param {number} port - The port within the URL.

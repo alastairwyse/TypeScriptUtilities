@@ -52,7 +52,7 @@ export enum JavascriptBasicType
  * @name ITypedObjectConversionFunction
  * @desc Converts an object of type 'any' to a typed object.
  * 
- * @argument {any} untypedObject - An un-typed object.
+ * @param {any} untypedObject - An un-typed object.
  * @template T - The type of object to convert to.
  * @returns {T} - The typed object.
  */

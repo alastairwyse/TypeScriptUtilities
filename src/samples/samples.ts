@@ -1,5 +1,20 @@
 import { TypeConversionDefinition, JavascriptBasicType, ITypedObjectConversionFunction, ObjectTypeConversionDefinition } from '../utilities/data-validation/object-type-conversion-definition';
 import { ContainerObjectTypeValidator } from '../utilities/data-validation/container-object-type-validator';
+import { IBufferFlushAction } from '../utilities/buffering/ibuffer-flush-action';
+import { SizeLimitedBufferFlushStrategy } from '../utilities/buffering/size-limited-buffer-flush-strategy';
+import { Buffer } from '../utilities/buffering/buffer';
+import { HttpRequestMethod } from '../utilities/service-layer-interface/http-request-method';
+import { AureliaHttpClient } from "../utilities/service-layer-interface/implementations/aurelia-http-client";
+import { UrlScheme } from '../utilities/service-layer-interface/url-scheme';
+import { HttpUrlPrefixBuilder } from '../utilities/service-layer-interface/http-url-prefix-builder';
+import { ServiceLayerInterface, ServiceLayerCallResult, HttpContentType } from '../utilities/service-layer-interface/service-layer-interface';
+import { HttpUrlPathAndQueryBuilder } from '../utilities/service-layer-interface/http-url-path-and-query-builder';
+import { LogLevel } from 'utilities/logging/log-level';
+import { UuidSessionIdProvider } from 'utilities/logging/uuid-session-id-provider';
+import { TimedLoopBufferFlushStrategy } from 'utilities/buffering/timed-loop-buffer-flush-strategy';
+import { ConsoleLogger } from 'utilities/logging/console-logger';
+import { BufferedLogger } from 'utilities/logging/buffered-logger';
+import { CompositeLogger } from 'utilities/logging/composite-logger';
 
 // #region Test Classes
 
@@ -203,9 +218,56 @@ class StockWithTypeConversionDefinition {
     }
 }
 
+/**
+ * @name WriteToConsoleBufferFlushAction
+ * @desc Implementation of IBufferFlushAction<string> which writes logging information to the console.
+ */
+class WriteToConsoleBufferFlushAction implements IBufferFlushAction<string> {
+
+    /** @inheritdoc */
+    Flush(bufferContents: IterableIterator<string>): void {
+
+        for (let currentItem of Array.from(bufferContents)) {
+            console.log(currentItem);
+        }
+    }
+}
+
+/**
+ * @name LogWriterBufferFlushAction
+ * @desc Implementation of IBufferFlushAction<string> which writes logging information to an API endpoint.
+ */
+class LogWriterBufferFlushAction implements IBufferFlushAction<string> {
+
+    protected serviceLayerInterface: ServiceLayerInterface;
+
+    constructor() {
+        this.serviceLayerInterface = new ServiceLayerInterface(
+            new HttpUrlPrefixBuilder(UrlScheme.Http, "localhost", 51499, "api/"), 
+            10000,
+            new AureliaHttpClient()
+        );
+    }
+
+    /** @inheritdoc */
+    Flush(bufferContents: IterableIterator<string>): void {
+
+        this.serviceLayerInterface.CallServiceLayer(
+            new HttpUrlPathAndQueryBuilder("UiLogs/"),  
+            HttpRequestMethod.Put, 
+            // Body of service layer call is passed the buffer contents
+            Array.from(bufferContents), 
+            HttpContentType.Application_Json, 
+        )
+        .catch((serviceLayerCallResult: ServiceLayerCallResult) => {
+            throw new Error(serviceLayerCallResult.SystemErrorMessage);
+        });
+    }
+}
+
 // #endregion
 
-export class Samples {
+export class DataValidationSamples {
 
     public Run() : void {
 
@@ -643,4 +705,80 @@ export class Samples {
         );
         console.log(returnedStock2); 
     }       
+}
+
+export class BufferingSamples {
+
+    public Run() : void {
+
+        // Create the Buffer instance
+        let bufferFlushStrategy = new SizeLimitedBufferFlushStrategy(5);
+        let bufferFlushAction = new WriteToConsoleBufferFlushAction();
+        let buffer = new Buffer<string>(bufferFlushStrategy, bufferFlushAction);
+
+        // Buffer some data...
+        buffer.Add("The");
+        buffer.Add("quick");
+        buffer.Add("brown");
+        buffer.Add("fox");
+        setTimeout(() => { buffer.Add("jumps"); }, 5000);
+
+        // The following is written to the console on the 5th call to Add()...
+        //   The
+        //   quick
+        //   brown
+        //   fox
+        //   jumps
+    }
+}
+
+export class LoggingSamples {
+
+    public Run() : void  {
+
+        // Create a UUID session id up-front, so the same session id can be used in both ILogger instances
+        let sessionIdProvider = new UuidSessionIdProvider();
+        let sessionId: string = sessionIdProvider.GenerateId();
+        let bufferFlushStrategy = new TimedLoopBufferFlushStrategy(10000);
+        
+        // The ConsoleLogger will write log events to the browser/system console immediately
+        let consoleLogger = new ConsoleLogger
+        (
+            LogLevel.Information, 
+            sessionId
+        );
+
+        // The BufferedLogger will write log events to an API endpoint (implemented in the LogWriterBufferFlushAction class) in a 10 second timed loop
+        let bufferedLogger = new BufferedLogger
+        (
+            bufferFlushStrategy, 
+            new LogWriterBufferFlushAction(), 
+            LogLevel.Information, 
+            sessionId
+        )
+
+        // The CompositeLogger simply distributes / broadcasts logs to both of the above loggers
+        let compositeLogger = new CompositeLogger([ consoleLogger, bufferedLogger ]);
+
+        // The worker process in the TimedLoopBufferFlushStrategy class needs to be started
+        bufferFlushStrategy.Start();
+
+        // Write 2 log events immediately, and then another two after a 15 second pause...
+        compositeLogger.Log(LogLevel.Information, "Item 1");
+        compositeLogger.Log(LogLevel.Information, "Item 2");
+        setTimeout(() => {
+            compositeLogger.Log(LogLevel.Information, "Item 3");
+            compositeLogger.Log(LogLevel.Information, "Item 4");
+            }, 
+            15000
+        );
+
+        // The following is written to the console...
+        //   7368a5f4-8c7e-4b48-a755-dc84fa8de6bd | 2020-10-27T23:38:59.482+09:00 | Information | Item 1
+        //   7368a5f4-8c7e-4b48-a755-dc84fa8de6bd | 2020-10-27T23:38:59.484+09:00 | Information | Item 2
+        //   7368a5f4-8c7e-4b48-a755-dc84fa8de6bd | 2020-10-27T23:39:14.486+09:00 | Information | Item 3
+        //   7368a5f4-8c7e-4b48-a755-dc84fa8de6bd | 2020-10-27T23:39:14.487+09:00 | Information | Item 4
+        //
+        // ... and the same data written to the API endpoint defined in class LogWriterBufferFlushAction in a 10 second loop
+    }
 }

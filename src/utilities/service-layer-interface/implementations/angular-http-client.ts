@@ -23,7 +23,7 @@ import { AngularHttpErrorResponse } from './angular-http-error-response';
 
 /**
  * @name AngularHttpClient
- * @description An implementation of IHttpClient which uses the Angular HttpClient class.
+ * @desc An implementation of IHttpClient which uses the Angular HttpClient class.
  */
 export class AngularHttpClient implements IHttpClient {
 
@@ -35,6 +35,7 @@ export class AngularHttpClient implements IHttpClient {
     constructor(protected httpClient: HttpClient) {
     }
 
+    /** @inheritdoc */
     Call(url: string, requestMethod: HttpRequestMethod, content: any, timeoutValue: number): Promise<IHttpResponse> {
 
         return new Promise<IHttpResponse>((

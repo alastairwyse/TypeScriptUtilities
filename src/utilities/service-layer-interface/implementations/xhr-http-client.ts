@@ -21,7 +21,7 @@ import { HttpRequestMethod } from '../http-request-method';
  * @name IPromiseCallbackFunction
  * @desc The resolve or reject callback functions passed to a Promise<IHttpResponse>.
  * 
- * @argument {IHttpResponse} httpResponse - The callback function.
+ * @param {IHttpResponse} httpResponse - The callback function.
  */
 interface IPromiseCallbackFunction {
     (httpResponse: IHttpResponse): void;
@@ -29,7 +29,7 @@ interface IPromiseCallbackFunction {
 
 /**
  * @name XhrHttpClient
- * @description An implementation of IHttpClient which uses the JavaScript XMLHttpRequest class.
+ * @desc An implementation of IHttpClient which uses the JavaScript XMLHttpRequest class.
  */
 export class XhrHttpClient implements IHttpClient {
 
@@ -44,6 +44,7 @@ export class XhrHttpClient implements IHttpClient {
         this.xmlHttpRequest = new XMLHttpRequest();
     }
 
+    /** @inheritdoc */
     Call(url: string, requestMethod: HttpRequestMethod, content: any, timeout: number): Promise<IHttpResponse> {
 
         let returnPromise: Promise<IHttpResponse> = new Promise<IHttpResponse>((
@@ -68,7 +69,9 @@ export class XhrHttpClient implements IHttpClient {
 
                 // Convert xmlHttpRequest stuff to an IHttpResponse
 
-                this.resolveFunction(IHttpResponse);
+                //this.resolveFunction(IHttpResponse);
+
+                throw new Error("Method not implemented.");
             }
         };
     }

@@ -18,11 +18,13 @@ import { IConsole } from './iconsole';
 
 /**
  * @name DefaultConsole
- * @description Default implementation of the IConsole interface.  Writes to the browser / system console.
+ * @desc Default implementation of the IConsole interface.  Writes to the browser / system console.
  */
 export class DefaultConsole implements IConsole {
 
+    /** @inheritdoc */
     Log(message: string) : void {
+        
         console.log(message);
     }
 }

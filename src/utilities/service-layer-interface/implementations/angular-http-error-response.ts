@@ -45,11 +45,15 @@ export class AngularHttpErrorResponse implements IHttpResponse {
         this.httpErrorResponse = httpErrorResponse;
     }
 
+    /** @inheritdoc */
     get Content() : any {
+
         return null;
     }
 
+    /** @inheritdoc */
     get MimeType() : string | null {
+
         // If the response body is a string, the Angular HttpClient class sets the HttpErrorResponse.error.error property as a SyntaxError
         //   In this case a content type string indicating an unknown type is returned.
         if ( this.httpErrorResponse.hasOwnProperty("error") && 
@@ -63,7 +67,9 @@ export class AngularHttpErrorResponse implements IHttpResponse {
         }
     }
 
+    /** @inheritdoc */
     get ResponseType() : string {
+
         if (this.httpErrorResponse.name === AngularHttpErrorResponse.angularHttpResponseTimeoutNameProperty) {
             return AngularHttpErrorResponse.responseTypeTimeoutValue;
         }
@@ -72,7 +78,9 @@ export class AngularHttpErrorResponse implements IHttpResponse {
         }
     }
 
+    /** @inheritdoc */
     get StatusCode() : number {
+
         // When the Angular HttpClient times out it doesn't return a status, hence fake this to 0 to replicate the Aurelia HTTP client's behaviour
         if (this.httpErrorResponse.name === AngularHttpErrorResponse.angularHttpResponseTimeoutNameProperty) {
             return 0;
@@ -82,7 +90,9 @@ export class AngularHttpErrorResponse implements IHttpResponse {
         }
     }
 
+    /** @inheritdoc */
     get StatusText() : string {
+        
         // When the Angular HttpClient times out it doesn't return status text, hence fake this to a blank string to replicate the Aurelia HTTP client's behaviour
         if (this.httpErrorResponse.name === AngularHttpErrorResponse.angularHttpResponseTimeoutNameProperty) {
             return "";

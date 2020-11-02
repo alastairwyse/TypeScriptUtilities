@@ -15,22 +15,27 @@
  */
 
 import * as moment from 'moment';
-import { IDateTimeProvider } from '../../../../src/utilities/logging/idate-time-provider'; 
+import { IDateTimeProvider } from '../../../../src/common/javascript-abstractions/idate-time-provider'; 
 
 /**
  * @name MockDateTimeProviderImplementation
- * @description Mock implementation of IDateTimeProvider for testing.
+ * @desc Mock implementation of IDateTimeProvider for testing, which returns date/time values which increment by 1ms on each call to GetCurrentDateTime().
  */
 export class MockDateTimeProviderImplementation implements IDateTimeProvider {
 
     protected currentDateTime: moment.Moment;
 
-    constructor() {
-        this.currentDateTime = moment("2019-11-30 17:43:00.000+09:00");
+    /**
+     * @name MockDateTimeProviderImplementation
+     * 
+     * @param {Moment} initialDateTime - The initial date/time to return.
+     */
+    constructor(initialDateTime: moment.Moment) {
+        this.currentDateTime = initialDateTime;
     }
 
     GetCurrentDateTime(format: string): string {
-        let returnString: string =  this.currentDateTime.format("YYYY-MM-DDTHH:mm:ss.SSSZ");
+        let returnString: string = this.currentDateTime.format(format);
         this.currentDateTime.second(this.currentDateTime.get("second") + 1);
 
         return returnString;

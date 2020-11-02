@@ -24,7 +24,7 @@ export class JavaScriptStringConstants {
     static readonly BooleanType: string = "boolean";
     static readonly NumberType: string = "number";
     static readonly ObjectType: string = "object";
+    static readonly FunctionType: string = "function";
     static readonly InvalidDate: string = "Invalid Date";
     static readonly Undefined: string = "undefined";
-    
 }

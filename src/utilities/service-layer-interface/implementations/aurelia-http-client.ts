@@ -23,9 +23,10 @@ import { AureliaHttpResponseMessage } from './aurelia-http-response-message';
  * @name IHttpClientMethodFunction
  * @desc Abstracts various calls to execute HTTP method calls on the Aurelia HttpClient class.
  * 
- * @argument {string} url - The target URL.
- * @argument {any} url - The request payload.
- * @argument {number} timeout - The timeout for the HTTP call.
+ * @param {string} url - The target URL.
+ * @param {any} url - The request payload.
+ * @param {number} timeout - The timeout for the HTTP call.
+ * 
  * @returns {Promise<HttpResponseMessage>} - A cancellable promise object.
  */
 interface IHttpClientMethodFunction {
@@ -34,7 +35,7 @@ interface IHttpClientMethodFunction {
 
 /**
  * @name AureliaHttpClient
- * @description An implementation of IHttpClient which uses the Aurelia HttpClient class.
+ * @desc An implementation of IHttpClient which uses the Aurelia HttpClient class.
  */
 export class AureliaHttpClient implements IHttpClient {
    
@@ -48,6 +49,7 @@ export class AureliaHttpClient implements IHttpClient {
         this.InitializeHttpClientFunctionsMap();
     }
 
+    /** @inheritdoc */
     Call(url: string, requestMethod: HttpRequestMethod, content: any, timeout: number): Promise<IHttpResponse> {
 
         return new Promise<IHttpResponse>((

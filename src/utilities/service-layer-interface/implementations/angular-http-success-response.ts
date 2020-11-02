@@ -41,11 +41,15 @@ export class AngularHttpSuccessResponse implements IHttpResponse {
         this.httpResponse = httpResponse;
     }
 
+    /** @inheritdoc */
     get Content() : any {
+
         return this.httpResponse.body;
     }
 
+    /** @inheritdoc */
     get MimeType() : string | null {
+
         // Even though in the AngularHttpClient class we're using the HttpClient.request() overload which is supposed to return the body as a JSON object, 
         //   if the response contains just a number or boolean, the request() method will return a resolved (success) promise with a 200 status.  Hence 
         //   the below code checks whether the response body is an object, and if not returns a content type string indicating an unknown type.
@@ -57,15 +61,21 @@ export class AngularHttpSuccessResponse implements IHttpResponse {
         }
     }
 
+    /** @inheritdoc */
     get ResponseType() : string {
+
         return AngularHttpSuccessResponse.responseTypeSuccessValue;
     }
 
+    /** @inheritdoc */
     get StatusCode() : number {
+
         return this.httpResponse.status;
     }
 
+    /** @inheritdoc */
     get StatusText() : string {
+        
         return this.httpResponse.statusText;
     }
 }

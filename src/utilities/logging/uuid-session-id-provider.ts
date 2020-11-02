@@ -19,13 +19,13 @@ import { v4 as uuid } from 'uuid';
 
 /**
  * @name UuidSessionIdProvider
- * @description Implementation of ISessionIdProvider which generates session ids as UUIDs.
+ * @desc Implementation of ISessionIdProvider which generates session ids as UUIDs.
  */
 export class UuidSessionIdProvider implements ISessionIdProvider{
 
     /**
      * @name GenerateId
-     * @description Returns a new UUID as the session id.
+     * @desc Returns a new UUID as the session id.
 
      * @returns {string} - A new UUID.
      */

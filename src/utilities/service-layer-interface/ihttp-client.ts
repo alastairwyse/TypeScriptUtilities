@@ -18,7 +18,7 @@ import { HttpRequestMethod } from './http-request-method';
 
 /**
  * @name IHttpResponse
- * @description Defines data properties returned by a HTTP call.
+ * @desc Defines data properties returned by a HTTP call.
  */
 export interface IHttpResponse {
 
@@ -61,7 +61,7 @@ export interface IHttpClient {
 
     /**
      * @name Call
-     * @description Performs a HTTP method call.
+     * @desc Performs a HTTP method call.
      * 
      * @param {string} url - The URL to call.
      * @param {HttpRequestMethod} requestMethod - The HTTP method to use.

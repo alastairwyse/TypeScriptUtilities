@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import { MockSessionIdProviderImplementation } from './mock-session-id-provider-implementation';
+import * as moment from 'moment';
 import { MockDateTimeProviderImplementation } from './mock-date-time-provider-implementation';
 import { ISessionIdProvider } from '../../../../src/utilities/logging/isession-id-provider';
-import { IDateTimeProvider } from '../../../../src/utilities/logging/idate-time-provider';
-import { IConsole } from '../../../../src/utilities/logging/iconsole';
+import { IDateTimeProvider } from '../../../../src/common/javascript-abstractions/idate-time-provider';
+import { IConsole } from '../../../../src/common/javascript-abstractions/iconsole';
 import { ConsoleLogger } from '../../../../src/utilities/logging/console-logger';
 import { LogLevel } from '../../../../src/utilities/logging/log-level';
 
 /**
  * @name MockConsoleImplementation
- * @description Mock implementation of IConsole for testing.
+ * @desc Mock implementation of IConsole for testing.
  */
 class MockConsoleImplementation implements IConsole {
 
@@ -51,14 +51,16 @@ describe("ConsoleLogger Tests", () => {
     const testUserId = "user1234";
 
     beforeEach(() => {
-        mockSessionIdProvider = new MockSessionIdProviderImplementation(testSessionId);
-        mockDateTimeProvider = new MockDateTimeProviderImplementation();
+        mockSessionIdProvider = jest.genMockFromModule("../../../../src/utilities/service-layer-interface/ihttp-client");
+        mockSessionIdProvider.GenerateId = jest.fn();
+        (<any>(mockSessionIdProvider.GenerateId)).mockReturnValue(testSessionId);
+        mockDateTimeProvider = new MockDateTimeProviderImplementation(moment("2019-11-30 17:43:00.000+09:00"));
         mockConsole = new MockConsoleImplementation();
         testConsoleLogger = new ConsoleLogger(
             LogLevel.Information, 
+            mockSessionIdProvider, 
             "|", 
             "YYYY-MM-DDTHH:mm:ss.SSSZ", 
-            mockSessionIdProvider, 
             testUserId, 
             mockDateTimeProvider, 
             mockConsole
@@ -66,6 +68,17 @@ describe("ConsoleLogger Tests", () => {
     });
 
     afterEach(() => { 
+    });
+
+    it("Constructor(): Parameters 'separatorString' and 'dateTimeFormat' have value defaulted when not specified.", done => {
+        testConsoleLogger = new ConsoleLogger(
+            LogLevel.Information, 
+            mockSessionIdProvider
+        );
+
+        expect((<any>testConsoleLogger).separatorString).toBe("|");
+        expect((<any>testConsoleLogger).dateTimeFormat).toBe("YYYY-MM-DDTHH:mm:ss.SSSZ");
+        done();
     });
 
     it("Log(): Include error success test.", done => {

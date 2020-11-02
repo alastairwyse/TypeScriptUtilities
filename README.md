@@ -5,8 +5,6 @@ Utility classes for TypeScript web applications.
 
 ## Contents
 
----
-
 ### :: ContainerObjectTypeValidator ::
 
 TypeScript allows un-typed objects returned from API calls to be simply assigned to strongly typed objects.  E.g for the class StoreCatalogueItem...

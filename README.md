@@ -809,7 +809,7 @@ These classes are losely based on the [UriBuilder](https://docs.microsoft.com/en
 
 ### :: Buffering ::
 
-The [buffering](src/utilities/buffering/) folder contains classes which implement basic buffering functionality... i.e. to store data, and then take some periodic action to process the data and clear the store (e.g. store log data and periodically send it to an API endpoint).  The classes are designed to be as extensible as possible, so both the processing action (a buffer 'flush') and the timing of the action can be custom-defined by implementing interfaces... [IBufferFlushAction](src/utilities/buffering/ibuffer-flush-action.ts) for the action, and [IBufferFlushStrategy](src/utilities/buffering/ibuffer-flush-strategy.ts) for the timimg.
+The [buffering](src/utilities/buffering/) folder contains classes which implement basic buffering functionality... i.e. to store data, and then take some periodic action to process the data and clear the store (e.g. store log data and periodically send it to an API endpoint).  The classes are designed to be as extensible as possible, so both the processing action (a buffer 'flush') and the timing of the action can be custom-defined by implementing interfaces... [IBufferFlushAction](src/utilities/buffering/ibuffer-flush-action.ts) for the action, and [IBufferFlushStrategy](src/utilities/buffering/ibuffer-flush-strategy.ts) for the timing.
 
 ### Classes
 
@@ -923,7 +923,7 @@ A basic implementation of ILogger which writes log entries to the system/browser
 
 #### BufferedLogger
 
-An ILogger which utilises the buffering functionality (described above) to buffer log entries before processing them.  The classes uses an underlying Buffer<T>, so [IBufferFlushAction<string>](src/utilities/buffering/ibuffer-flush-action.ts) and [IBufferFlushStrategy<string>](src/utilities/buffering/ibuffer-flush-strategy.ts) implementations must be set on the constructor to define when and how the buffer should be processed.  As with Buffer<T> either the [TimedLoopBufferFlushStrategy](src/utilities/buffering/timed-loop-buffer-flush-strategy.ts) or [SizeLimitedBufferFlushStrategy](src/utilities/buffering/size-limited-buffer-flush-strategy.ts) buffer strategies can be used (or a custom strategy defined).  A typical use of this class would be to send client-side logs to an API endpoint, but only sending on a periodic basis.
+An ILogger which utilises the buffering functionality (described above) to buffer log entries before processing them.  The class uses an underlying Buffer<T>, so [IBufferFlushAction<string>](src/utilities/buffering/ibuffer-flush-action.ts) and [IBufferFlushStrategy<string>](src/utilities/buffering/ibuffer-flush-strategy.ts) implementations must be set on the constructor to define when and how the buffer should be processed.  As with Buffer<T> either the [TimedLoopBufferFlushStrategy](src/utilities/buffering/timed-loop-buffer-flush-strategy.ts) or [SizeLimitedBufferFlushStrategy](src/utilities/buffering/size-limited-buffer-flush-strategy.ts) buffer strategies can be used (or a custom strategy defined).  A typical use of this class would be to send client-side logs to an API endpoint, but only sending on a periodic basis.
 
 #### CompositeLogger
 

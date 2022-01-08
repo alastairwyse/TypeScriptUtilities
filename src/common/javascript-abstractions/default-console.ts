@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import { IConsole } from './iconsole';
 export class DefaultConsole implements IConsole {
 
     /** @inheritdoc */
-    Log(message: string) : void {
+    public Log(message: string) : void {
         
         console.log(message);
     }

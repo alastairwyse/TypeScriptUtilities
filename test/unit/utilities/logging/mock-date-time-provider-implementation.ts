@@ -34,10 +34,21 @@ export class MockDateTimeProviderImplementation implements IDateTimeProvider {
         this.currentDateTime = initialDateTime;
     }
 
-    GetCurrentDateTime(format: string): string {
+    public GetCurrentDateTime(): Date {
+        let returnDate: Date = this.currentDateTime.toDate();
+        this.IncrementCurrentDateTime();
+
+        return returnDate;
+    }
+
+    public GetCurrentDateTimeFormatted(format: string): string {
         let returnString: string = this.currentDateTime.format(format);
-        this.currentDateTime.second(this.currentDateTime.get("second") + 1);
+        this.IncrementCurrentDateTime();
 
         return returnString;
+    }
+
+    protected IncrementCurrentDateTime() : void {
+        this.currentDateTime.second(this.currentDateTime.get("second") + 1);
     }
 }

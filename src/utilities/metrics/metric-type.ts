@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2021 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-import { ISessionIdProvider } from "./isession-id-provider";
-import { v4 as uuid } from 'uuid';
-
 /**
- * @name UuidSessionIdProvider
- * @desc Implementation of ISessionIdProvider which generates session ids as UUIDs.
+ * @name MetricType
+ * @desc Represents the type of a metric.  
  */
-export class UuidSessionIdProvider implements ISessionIdProvider{
-
-    /**
-     * @name GenerateId
-     * @desc Returns a new UUID as the session id.
-
-     * @returns {string} - A new UUID.
-     */
-    public GenerateId(): string {
-        return uuid();
-    }
+export enum MetricType {
+    Count = "Count", 
+    Amount = "Amount", 
+    Status = "Status",
+    Interval = "Interval"
 }

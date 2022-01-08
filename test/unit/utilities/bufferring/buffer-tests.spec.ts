@@ -36,7 +36,7 @@ describe("Buffer Tests", () => {
     });
 
     it("Add(): Success test.", done => {
-        mockFlushStrategy.NotifyItemBufferred = jest.fn();
+        mockFlushStrategy.NotifyItemBuffered = jest.fn();
         expect(testBuffer.ItemCount).toBe(0);
 
         testBuffer.Add(7);
@@ -44,7 +44,7 @@ describe("Buffer Tests", () => {
         expect((<any>testBuffer).bufferContents[0]).toBe(7);
         expect((<any>testBuffer).bufferContents.length).toBe(1);
         expect(testBuffer.ItemCount).toBe(1);
-        expect(mockFlushStrategy.NotifyItemBufferred).toBeCalledTimes(1);
+        expect(mockFlushStrategy.NotifyItemBuffered).toBeCalledTimes(1);
 
 
         testBuffer.Add(11);
@@ -52,14 +52,14 @@ describe("Buffer Tests", () => {
         expect((<any>testBuffer).bufferContents[1]).toBe(11);
         expect((<any>testBuffer).bufferContents.length).toBe(2);
         expect(testBuffer.ItemCount).toBe(2);
-        expect(mockFlushStrategy.NotifyItemBufferred).toBeCalledTimes(2);
+        expect(mockFlushStrategy.NotifyItemBuffered).toBeCalledTimes(2);
 
         done();
     });
 
     it("Flush(): Success test.", done => {
         mockFlushAction.Flush = jest.fn();
-        mockFlushStrategy.NotifyItemBufferred = jest.fn();
+        mockFlushStrategy.NotifyItemBuffered = jest.fn();
         mockFlushStrategy.NotifyBufferFlushed = jest.fn();
         testBuffer.Add(7);
         testBuffer.Add(11);

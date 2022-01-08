@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,10 +57,10 @@ export class ContainerObjectTypeValidator {
      */
     public ValidateAndConvertObject<T>(inputObject: any, type: { new(): T; }, objectTypeConversionDefinition: ObjectTypeConversionDefinition) : T {
 
-        let typeInstance = new type();
-        let typeInstancePrototype: Object = Object.getPrototypeOf(typeInstance)
+        let typeInstance: any = new type();
+        let typeInstancePropertyNames: string[] = Object.getOwnPropertyNames(typeInstance)
 
-        for (let currentPropertyName in typeInstancePrototype) {
+        for (let currentPropertyName of typeInstancePropertyNames) {
             if (objectTypeConversionDefinition.PropertyIsExcluded(currentPropertyName) === false) {
                 if (inputObject.hasOwnProperty(currentPropertyName) === false)
                     throw new Error(`Parameter 'inputObject' does not contain property '${currentPropertyName}'.`);
@@ -97,7 +97,8 @@ export class ContainerObjectTypeValidator {
                             }
                         }
                         catch (error) {
-                            throw new Error(`Error attempting to validate and convert property '${currentPropertyName}':  ${error.message}`);
+                            let typedError: Error = <Error>error;
+                            throw new Error(`Error attempting to validate and convert property '${currentPropertyName}':  ${typedError.message}`);
                         }
                     }
                 }
@@ -131,7 +132,8 @@ export class ContainerObjectTypeValidator {
                 typedArray.push(this.ValidateAndConvertObject(currentInputElement, elementType, elementTypeConversionDefinition));
             }
             catch (error) {
-                throw new Error(`Error attempting to validate and convert array element '${JSON.stringify(currentInputElement)}':  ${error.message}`);
+                let typedError: Error = <Error>error;
+                throw new Error(`Error attempting to validate and convert array element '${JSON.stringify(currentInputElement)}':  ${typedError.message}`);
             }
         }
 
@@ -165,7 +167,8 @@ export class ContainerObjectTypeValidator {
                 typedArray.push(typeConversionFunction.call(this, currentInputElement));
             }
             catch (error) {
-                throw new Error(`Error attempting to validate and convert array element '${currentInputElement.toString()}':  ${error.message}`);
+                let typedError: Error = <Error>error;
+                throw new Error(`Error attempting to validate and convert array element '${currentInputElement.toString()}':  ${typedError.message}`);
             }
         }
 
@@ -196,7 +199,8 @@ export class ContainerObjectTypeValidator {
                 typedArray.push(typeConversionFunction.call(this, currentInputElement));
             }
             catch (error) {
-                throw new Error(`Error attempting to validate and convert array element '${currentInputElement.toString()}':  ${error.message}`);
+                let typedError: Error = <Error>error;
+                throw new Error(`Error attempting to validate and convert array element '${currentInputElement.toString()}':  ${typedError.message}`);
             }
         }
 

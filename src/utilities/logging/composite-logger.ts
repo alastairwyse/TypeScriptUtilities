@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ export class CompositeLogger implements ILogger {
      * @param {string} message - The details of the log event.
      * @param {Error} [error] - (Optional) The error which caused the log event.
      */
-    Log(level: LogLevel, message: string, error?: Error): void {
+     public Log(level: LogLevel, message: string, error?: Error): void {
         for (let i: number = 0; i < this.loggers.length; i++) {
             this.loggers[i].Log(level, message, error);
         }

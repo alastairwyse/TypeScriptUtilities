@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,12 @@ export class AureliaHttpClient implements IHttpClient {
 
     constructor() {
         this.httpClient = new HttpClient();
+        this.httpClientFunctions = new Map<HttpRequestMethod, IHttpClientMethodFunction>();
         this.InitializeHttpClientFunctionsMap();
     }
 
     /** @inheritdoc */
-    Call(url: string, requestMethod: HttpRequestMethod, content: any, timeout: number): Promise<IHttpResponse> {
+    public Call(url: string, requestMethod: HttpRequestMethod, content: any, timeout: number): Promise<IHttpResponse> {
 
         return new Promise<IHttpResponse>((
             resolve: ((result: IHttpResponse) => void), 
@@ -72,7 +73,6 @@ export class AureliaHttpClient implements IHttpClient {
     }
 
     protected InitializeHttpClientFunctionsMap() : void {
-        this.httpClientFunctions = new Map<HttpRequestMethod, IHttpClientMethodFunction>();
         this.httpClientFunctions.set(HttpRequestMethod.Get, (url: string, content: any, timeout: number): Promise<HttpResponseMessage> => {
             return this.httpClient.createRequest(url).asGet().withTimeout(timeout).send();
         });

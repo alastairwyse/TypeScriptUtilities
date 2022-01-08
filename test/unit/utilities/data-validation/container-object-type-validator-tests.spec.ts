@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,15 +152,15 @@ describe("ContainerObjectTypeValidator Tests", () => {
         storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
             <Iterable<[string, TypeConversionDefinition]>>
             [
-                [ "DisplayName", JavascriptBasicType.String ], 
-                [ "PricePerUnit", JavascriptBasicType.Number ], 
-                [ "Unit", 
+                [ "displayName", JavascriptBasicType.String ], 
+                [ "pricePerUnit", JavascriptBasicType.Number ], 
+                [ "unit", 
                     [ 
                         [ "0", "Bunch" ], [ "1", "Piece" ], [ "2", "Kilogram" ], [ "3", "Pack" ]  
                     ] 
                 ], 
-                [ "InStock", JavascriptBasicType.Boolean ], 
-                [ "DateAdded", JavascriptBasicType.Date ] 
+                [ "inStock", JavascriptBasicType.Boolean ], 
+                [ "dateAdded", JavascriptBasicType.Date ] 
             ]
         );
         testContainerObjectTypeValidator = new ContainerObjectTypeValidator();
@@ -519,13 +519,13 @@ describe("ContainerObjectTypeValidator Tests", () => {
     it("ValidateAndConvertObject(): Missing property in untyped object throws exception.", done => {
         expect(() => {
             let inputObject: any =  {
-                DisplayName: "Onion", 
-                Unit: "2", 
-                InStock: true, 
-                DateAdded: "2002-01-17"
+                displayName: "Onion", 
+                unit: "2", 
+                inStock: true, 
+                dateAdded: "2002-01-17"
             };
             testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(inputObject, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
-        }).toThrow(new TypeError("Parameter 'inputObject' does not contain property 'PricePerUnit'."));
+        }).toThrow(new TypeError("Parameter 'inputObject' does not contain property 'pricePerUnit'."));
         done();
     });
 
@@ -534,55 +534,55 @@ describe("ContainerObjectTypeValidator Tests", () => {
             storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
                 <Iterable<[string, TypeConversionDefinition]>>
                 [
-                    [ "DisplayName", JavascriptBasicType.String ], 
-                    // [ "PricePerUnit", JavascriptBasicType.Number ], 
-                    [ "Unit", 
+                    [ "displayName", JavascriptBasicType.String ], 
+                    // [ "pricePerUnit", JavascriptBasicType.Number ], 
+                    [ "unit", 
                         [ 
                             [ "0", "Bunch" ], [ "1", "Piece" ], [ "2", "Kilogram" ], [ "3", "Pack" ]  
                         ] 
                     ], 
-                    [ "InStock", JavascriptBasicType.Boolean ], 
-                    [ "DateAdded", JavascriptBasicType.Date ] 
+                    [ "inStock", JavascriptBasicType.Boolean ], 
+                    [ "dateAdded", JavascriptBasicType.Date ] 
                 ]
             );
             testContainerObjectTypeValidator = new ContainerObjectTypeValidator();
             let inputObject: any =  {
-                DisplayName: "Onion", 
-                PricePerUnit: 380, 
-                Unit: "2", 
-                InStock: true, 
-                DateAdded: "2002-01-17"
+                displayName: "Onion", 
+                pricePerUnit: 380, 
+                unit: "2", 
+                inStock: true, 
+                dateAdded: "2002-01-17"
             };
             testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(inputObject, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
-        }).toThrow(new TypeError("Parameter 'ObjectTypeConversionDefinition' does not contain a type conversion definition for object property 'PricePerUnit'."));
+        }).toThrow(new TypeError("Parameter 'ObjectTypeConversionDefinition' does not contain a type conversion definition for object property 'pricePerUnit'."));
         done();
     });
 
     it("ValidateAndConvertObject(): Failure to convert basic JavaScript type throws exception.", done => {
         expect(() => {
             let inputObject: any =  {
-                DisplayName: { DisplayName: "Onion" }, 
-                PricePerUnit: 380, 
-                Unit: "2", 
-                InStock: true, 
-                DateAdded: "2002-01-17"
+                displayName: { DisplayName: "Onion" }, 
+                pricePerUnit: 380, 
+                unit: "2", 
+                inStock: true, 
+                dateAdded: "2002-01-17"
             };
             testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(inputObject, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
-        }).toThrow(new TypeError("Error attempting to validate and convert property 'DisplayName':  Parameter 'untypedString' was expected to be of type 'string', 'boolean', or 'number' but was 'object'."));
+        }).toThrow(new TypeError("Error attempting to validate and convert property 'displayName':  Parameter 'untypedString' was expected to be of type 'string', 'boolean', or 'number' but was 'object'."));
         done();
     });
 
     it("ValidateAndConvertObject(): Failure to convert enum throws exception.", done => {
         expect(() => {
             let inputObject: any =  {
-                DisplayName: "Onion", 
-                PricePerUnit: 380, 
-                Unit: "5", 
-                InStock: true, 
-                DateAdded: "2002-01-17"
+                displayName: "Onion", 
+                pricePerUnit: 380, 
+                unit: "5", 
+                inStock: true, 
+                dateAdded: "2002-01-17"
             };
             testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(inputObject, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
-        }).toThrow(new TypeError("Error attempting to validate and convert property 'Unit':  Parameter 'untypedEnumValue' with value '5' could not be matched to an enum mapping value in '0,1,2,3'."));
+        }).toThrow(new TypeError("Error attempting to validate and convert property 'unit':  Parameter 'untypedEnumValue' with value '5' could not be matched to an enum mapping value in '0,1,2,3'."));
         done();
     });
 
@@ -591,29 +591,29 @@ describe("ContainerObjectTypeValidator Tests", () => {
             storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
                 <Iterable<[string, TypeConversionDefinition]>>
                 [
-                    [ "DisplayName", JavascriptBasicType.String ], 
-                    [ "PricePerUnit", (untypedNumber: any) : number => {
+                    [ "displayName", JavascriptBasicType.String ], 
+                    [ "pricePerUnit", (untypedNumber: any) : number => {
                             throw new Error("Custom converter error.");
                         }
                     ], 
-                    [ "Unit", 
+                    [ "unit", 
                         [ 
                             [ "0", "Bunch" ], [ "1", "Piece" ], [ "2", "Kilogram" ], [ "3", "Pack" ]  
                         ] 
                     ], 
-                    [ "InStock", JavascriptBasicType.Boolean ], 
-                    [ "DateAdded", JavascriptBasicType.Date ] 
+                    [ "inStock", JavascriptBasicType.Boolean ], 
+                    [ "dateAdded", JavascriptBasicType.Date ] 
                 ]
             );
             let inputObject: any =  {
-                DisplayName: "Onion", 
-                PricePerUnit: 380, 
-                Unit: "2", 
-                InStock: true, 
-                DateAdded: "2002-01-17"
+                displayName: "Onion", 
+                pricePerUnit: 380, 
+                unit: "2", 
+                inStock: true, 
+                dateAdded: "2002-01-17"
             };
             testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(inputObject, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
-        }).toThrow(new TypeError("Error attempting to validate and convert property 'PricePerUnit':  Custom converter error."));
+        }).toThrow(new TypeError("Error attempting to validate and convert property 'pricePerUnit':  Custom converter error."));
         done();
     });
 
@@ -621,26 +621,26 @@ describe("ContainerObjectTypeValidator Tests", () => {
         storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
             <Iterable<[string, TypeConversionDefinition]>>
             [
-                [ "DisplayName", (untypedString: any) : string => {
+                [ "displayName", (untypedString: any) : string => {
                         return untypedString.toString();
                     } 
                 ], 
-                [ "PricePerUnit", JavascriptBasicType.Number ], 
-                [ "Unit", 
+                [ "pricePerUnit", JavascriptBasicType.Number ], 
+                [ "unit", 
                     [ 
                         [ "0", "Bunch" ], [ "1", "Piece" ], [ "2", "Kilogram" ], [ "3", "Pack" ]  
                     ] 
                 ], 
-                [ "InStock", JavascriptBasicType.Boolean ], 
-                [ "DateAdded", JavascriptBasicType.Date ] 
+                [ "inStock", JavascriptBasicType.Boolean ], 
+                [ "dateAdded", JavascriptBasicType.Date ] 
             ]
         );
         let inputObject: any =  {
-            DisplayName: "Onion", 
-            PricePerUnit: 380, 
-            Unit: "2", 
-            InStock: true, 
-            DateAdded: "2002-01-17"
+            displayName: "Onion", 
+            pricePerUnit: 380, 
+            unit: "2", 
+            inStock: true, 
+            dateAdded: "2002-01-17"
         };
 
         let result: StoreCatalogueItem = testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(inputObject, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
@@ -664,28 +664,28 @@ describe("ContainerObjectTypeValidator Tests", () => {
         storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
             <Iterable<[string, TypeConversionDefinition]>>
             [
-                [ "DisplayName", (untypedString: any) : string => {
+                [ "displayName", (untypedString: any) : string => {
                         return untypedString.toString();
                     } 
                 ], 
-                [ "PricePerUnit", JavascriptBasicType.Number ], 
-                [ "Unit", 
+                [ "pricePerUnit", JavascriptBasicType.Number ], 
+                [ "unit", 
                     [ 
                         [ "0", "Bunch" ], [ "1", "Piece" ], [ "2", "Kilogram" ], [ "3", "Pack" ]  
                     ] 
                 ], 
-                [ "InStock", JavascriptBasicType.Boolean ], 
-                [ "DateAdded", JavascriptBasicType.Date ] 
+                [ "inStock", JavascriptBasicType.Boolean ], 
+                [ "dateAdded", JavascriptBasicType.Date ] 
             ], 
             // excludeProperties
-            [ "PricePerUnit", "DisplayName" ]
+            [ "pricePerUnit", "displayName" ]
         );
         let inputObject: any =  {
-            DisplayName: "Onion", 
-            PricePerUnit: 380, 
-            Unit: "2", 
-            InStock: true, 
-            DateAdded: "2002-01-17"
+            displayName: "Onion", 
+            pricePerUnit: 380, 
+            unit: "2", 
+            inStock: true, 
+            dateAdded: "2002-01-17"
         };
 
         let result: StoreCatalogueItem = testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(inputObject, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
@@ -708,14 +708,14 @@ describe("ContainerObjectTypeValidator Tests", () => {
     it("ValidateAndConvertObject(): Not-nullable field with null value throws exception.", done => {
         expect(() => {
             let inputObject: any =  {
-                DisplayName: "Onion", 
-                PricePerUnit: 380, 
-                Unit: "1", 
-                InStock: true, 
-                DateAdded: null
+                displayName: "Onion", 
+                pricePerUnit: 380, 
+                unit: "1", 
+                inStock: true, 
+                dateAdded: null
             };
             testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(inputObject, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
-        }).toThrow(new Error("Property 'DateAdded' is not defined as nullable but has a null value."));
+        }).toThrow(new Error("Property 'dateAdded' is not defined as nullable but has a null value."));
         done();
     });
 
@@ -723,28 +723,28 @@ describe("ContainerObjectTypeValidator Tests", () => {
         storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
             <Iterable<[string, TypeConversionDefinition]>>
             [
-                [ "DisplayName", (untypedString: any) : string => {
+                [ "displayName", (untypedString: any) : string => {
                         return untypedString.toString();
                     } 
                 ], 
-                [ "PricePerUnit", JavascriptBasicType.Number ], 
-                [ "Unit", 
+                [ "pricePerUnit", JavascriptBasicType.Number ], 
+                [ "unit", 
                     [ 
                         [ "0", "Bunch" ], [ "1", "Piece" ], [ "2", "Kilogram" ], [ "3", "Pack" ]  
                     ] 
                 ], 
-                [ "InStock", JavascriptBasicType.Boolean ], 
-                [ "DateAdded", JavascriptBasicType.Date ] 
+                [ "inStock", JavascriptBasicType.Boolean ], 
+                [ "dateAdded", JavascriptBasicType.Date ] 
             ], 
             [], 
-            [ "DateAdded" ]
+            [ "dateAdded" ]
         );
         let inputObject: any =  {
-            DisplayName: "Onion", 
-            PricePerUnit: 380, 
-            Unit: "2", 
-            InStock: true, 
-            DateAdded: null
+            displayName: "Onion", 
+            pricePerUnit: 380, 
+            unit: "2", 
+            inStock: true, 
+            dateAdded: null
         };
 
         let result: StoreCatalogueItemWithNullableDate = testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItemWithNullableDate>(inputObject, StoreCatalogueItemWithNullableDate, storeCatalogueItemObjectTypeConversionDefinition);
@@ -765,28 +765,28 @@ describe("ContainerObjectTypeValidator Tests", () => {
         storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
             <Iterable<[string, TypeConversionDefinition]>>
             [
-                [ "DisplayName", (untypedString: any) : string => {
+                [ "displayName", (untypedString: any) : string => {
                         return untypedString.toString();
                     } 
                 ], 
-                [ "PricePerUnit", JavascriptBasicType.Number ], 
-                [ "Unit", 
+                [ "pricePerUnit", JavascriptBasicType.Number ], 
+                [ "unit", 
                     [ 
                         [ "0", "Bunch" ], [ "1", "Piece" ], [ "2", "Kilogram" ], [ "3", "Pack" ]  
                     ] 
                 ], 
-                [ "InStock", JavascriptBasicType.Boolean ], 
-                [ "DateAdded", JavascriptBasicType.Date ] 
+                [ "inStock", JavascriptBasicType.Boolean ], 
+                [ "dateAdded", JavascriptBasicType.Date ] 
             ], 
             [], 
-            [ "DateAdded" ]
+            [ "dateAdded" ]
         );
         let inputObject: any =  {
-            DisplayName: "Onion", 
-            PricePerUnit: 380, 
-            Unit: "2", 
-            InStock: true, 
-            DateAdded: "2002-01-17"
+            displayName: "Onion", 
+            pricePerUnit: 380, 
+            unit: "2", 
+            inStock: true, 
+            dateAdded: "2002-01-17"
         };
 
         let result: StoreCatalogueItemWithNullableDate = testContainerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItemWithNullableDate>(inputObject, StoreCatalogueItemWithNullableDate, storeCatalogueItemObjectTypeConversionDefinition);
@@ -814,11 +814,11 @@ describe("ContainerObjectTypeValidator Tests", () => {
     it("ValidateAndConvertObjectArray(): Parameter 'inputArray' not an array throws exception.", done => {
         expect(() => {
             let inputObject: any = {
-                DisplayName: "Onion", 
-                PricePerUnit: 380, 
-                Unit: "2", 
-                InStock: true, 
-                DateAdded: "2002-01-17"
+                displayName: "Onion", 
+                pricePerUnit: 380, 
+                unit: "2", 
+                inStock: true, 
+                dateAdded: "2002-01-17"
             };
             testContainerObjectTypeValidator.ValidateAndConvertObjectArray<StoreCatalogueItem>(inputObject, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
         }).toThrow(new TypeError("Parameter 'inputArray' is not an array."));
@@ -828,47 +828,47 @@ describe("ContainerObjectTypeValidator Tests", () => {
     it("ValidateAndConvertObjectArray(): Failure to convert array element throws exception.", done => {
         let inputArray: Array<any> = [
             {
-                DisplayName: "Onion", 
-                PricePerUnit: 380, 
-                Unit: "2", 
-                InStock: true, 
-                DateAdded: "2002-01-17"
+                displayName: "Onion", 
+                pricePerUnit: 380, 
+                unit: "2", 
+                inStock: true, 
+                dateAdded: "2002-01-17"
             }, 
             {
-                DisplayName: "Lemon", 
-                PricePerUnit: 75, 
-                Unit: "1", 
-                DateAdded: "2005-10-31"
+                displayName: "Lemon", 
+                pricePerUnit: 75, 
+                unit: "1", 
+                dateAdded: "2005-10-31"
             } 
         ];
         expect(() => {
             testContainerObjectTypeValidator.ValidateAndConvertObjectArray<StoreCatalogueItem>(inputArray, StoreCatalogueItem, storeCatalogueItemObjectTypeConversionDefinition);
-        }).toThrow(new TypeError(`Error attempting to validate and convert array element '${JSON.stringify(inputArray[1])}':  Parameter 'inputObject' does not contain property 'InStock'.`));
+        }).toThrow(new TypeError(`Error attempting to validate and convert array element '${JSON.stringify(inputArray[1])}':  Parameter 'inputObject' does not contain property 'inStock'.`));
         done();
     });
 
     it("ValidateAndConvertObjectArray(): Success test.", done => {
         let inputArray: Array<any> = [
             {
-                DisplayName: "Onion", 
-                PricePerUnit: 380, 
-                Unit: "2", 
-                InStock: true, 
-                DateAdded: "2002-01-17"
+                displayName: "Onion", 
+                pricePerUnit: 380, 
+                unit: "2", 
+                inStock: true, 
+                dateAdded: "2002-01-17"
             }, 
             {
-                DisplayName: "Lemon", 
-                PricePerUnit: 75, 
-                Unit: "1", 
-                InStock: false, 
-                DateAdded: "2005-10-31"
+                displayName: "Lemon", 
+                pricePerUnit: 75, 
+                unit: "1", 
+                inStock: false, 
+                dateAdded: "2005-10-31"
             }, 
             {
-                DisplayName: "Celery", 
-                PricePerUnit: 490, 
-                Unit: "0", 
-                InStock: true, 
-                DateAdded: "2001-11-09"
+                displayName: "Celery", 
+                pricePerUnit: 490, 
+                unit: "0", 
+                inStock: true, 
+                dateAdded: "2001-11-09"
             }
         ];
         
@@ -920,11 +920,11 @@ describe("ContainerObjectTypeValidator Tests", () => {
     it("ValidateAndConvertBasicTypeArray(): Parameter 'inputArray' not an array throws exception.", done => {
         expect(() => {
             let inputObject: any = {
-                DisplayName: "Onion", 
-                PricePerUnit: 380, 
-                Unit: "2", 
-                InStock: true, 
-                DateAdded: "2002-01-17"
+                displayName: "Onion", 
+                pricePerUnit: 380, 
+                unit: "2", 
+                inStock: true, 
+                dateAdded: "2002-01-17"
             };
             testContainerObjectTypeValidator.ValidateAndConvertBasicTypeArray<number>(inputObject, JavascriptBasicType.Number);
         }).toThrow(new TypeError("Parameter 'inputArray' is not an array."));
@@ -972,11 +972,11 @@ describe("ContainerObjectTypeValidator Tests", () => {
     it("ValidateAndConvertBasicNullableTypeArray(): Parameter 'inputArray' not an array throws exception.", done => {
         expect(() => {
             let inputObject: any = {
-                DisplayName: "Onion", 
-                PricePerUnit: 380, 
-                Unit: "2", 
-                InStock: true, 
-                DateAdded: "2002-01-17"
+                displayName: "Onion", 
+                pricePerUnit: 380, 
+                unit: "2", 
+                inStock: true, 
+                dateAdded: "2002-01-17"
             };
             testContainerObjectTypeValidator.ValidateAndConvertBasicNullableTypeArray<number>(inputObject, JavascriptBasicType.Number);
         }).toThrow(new TypeError("Parameter 'inputArray' is not an array."));

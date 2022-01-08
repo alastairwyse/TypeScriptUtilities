@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,14 @@ import { IDateTimeProvider } from './idate-time-provider';
 export class DefaultDateTimeProvider implements IDateTimeProvider {
 
     /** @inheritdoc */
-    GetCurrentDateTime(format: string): string {
+    public GetCurrentDateTime(): Date {
         
+        return new Date();
+    }
+
+    /** @inheritdoc */
+    public GetCurrentDateTimeFormatted(format: string): string {
+
         return moment().format(format);
     }
 }

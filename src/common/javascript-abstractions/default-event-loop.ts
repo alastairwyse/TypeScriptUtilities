@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,13 @@ import { IEventLoop } from './ievent-loop';
 export class DefaultEventLoop implements IEventLoop {
 
     /** @inheritdoc */
-    SetTimeout(func: Function, delay?: number | undefined, ...params: any[]): number {
+    public SetTimeout(func: Function, delay?: number | undefined, ...params: any[]): number {
         
         return setTimeout(func, delay, params);
     }
 
     /** @inheritdoc */
-    ClearTimeout(timeoutId: number): void {
+    public ClearTimeout(timeoutId: number): void {
         
         clearTimeout(timeoutId);
     }

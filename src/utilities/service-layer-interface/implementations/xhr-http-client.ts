@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,16 +36,18 @@ export class XhrHttpClient implements IHttpClient {
     /** The JavaScript XMLHttpRequest */
     protected xmlHttpRequest: XMLHttpRequest;
     /** The function to call in the case that calling the Call() method is successful. */
-    protected resolveFunction : IPromiseCallbackFunction;
+    protected resolveFunction : IPromiseCallbackFunction | null;
     /** The function to call in the case that calling the Call() method fails. */
-    protected rejectFunction : IPromiseCallbackFunction;
+    protected rejectFunction : IPromiseCallbackFunction | null;
     
     constructor() {
         this.xmlHttpRequest = new XMLHttpRequest();
+        this.resolveFunction = null;
+        this.rejectFunction = null;
     }
 
     /** @inheritdoc */
-    Call(url: string, requestMethod: HttpRequestMethod, content: any, timeout: number): Promise<IHttpResponse> {
+    public Call(url: string, requestMethod: HttpRequestMethod, content: any, timeout: number): Promise<IHttpResponse> {
 
         let returnPromise: Promise<IHttpResponse> = new Promise<IHttpResponse>((
             resolve: ((result: IHttpResponse) => void), 

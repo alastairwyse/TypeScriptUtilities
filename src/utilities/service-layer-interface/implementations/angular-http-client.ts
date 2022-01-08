@@ -36,7 +36,7 @@ export class AngularHttpClient implements IHttpClient {
     }
 
     /** @inheritdoc */
-    Call(url: string, requestMethod: HttpRequestMethod, content: any, timeoutValue: number): Promise<IHttpResponse> {
+    public Call(url: string, requestMethod: HttpRequestMethod, content: any, timeoutValue: number): Promise<IHttpResponse> {
 
         return new Promise<IHttpResponse>((
             resolve: ((result: IHttpResponse) => void), 

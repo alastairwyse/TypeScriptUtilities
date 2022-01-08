@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,6 +157,7 @@ export class ServiceLayerInterface {
         if (defaultTimeout < 1)
             throw new Error(`Parameter 'defaultTimeout' must be greater than or equal to 1.`);
 
+        this.httpContentTypeStringValues = new Map<string | null, HttpContentType>();
         this.InitializeHttpContentTypeStringValuesMap() ;
         this.serviceLayerBaseUrl = serviceLayerBaseUrl;
         this.defaultTimeout = defaultTimeout;
@@ -312,7 +313,6 @@ export class ServiceLayerInterface {
     }
 
     protected InitializeHttpContentTypeStringValuesMap() : void {
-        this.httpContentTypeStringValues = new Map<string | null, HttpContentType>();
         this.httpContentTypeStringValues.set("application/json", HttpContentType.Application_Json);
 
         // Check that all enum values are supported / handled

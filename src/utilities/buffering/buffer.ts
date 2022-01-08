@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ export class Buffer<T> implements IBuffer<T> {
     public Add(item: T) : void {
 
         this.bufferContents.push(item);
-        this.flushStrategy.NotifyItemBufferred();
+        this.flushStrategy.NotifyItemBuffered();
     }
 
     /** @inheritdoc */

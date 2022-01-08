@@ -119,6 +119,11 @@ class StockPrice {
     protected date: Date;
     protected price: number;
     
+    constructor() {
+        this.date = new Date();
+        this.price = 0;
+    }
+
     get Date(): Date {
         return this.date;
     }
@@ -141,7 +146,13 @@ class Stock {
     protected companyName: string;
     protected ticker: string;
     protected prices: Array<StockPrice>
-    
+        
+    constructor() {
+        this.companyName = "";
+        this.ticker = "";
+        this.prices = [];
+    }
+
     get CompanyName(): string {
         return this.companyName;
     }
@@ -173,14 +184,14 @@ class StockWithTypeConversionDefinition {
         // Parameter 'propertyDefinitions'
         <Iterable<[string, TypeConversionDefinition]>>
         [
-            [ "CompanyName", JavascriptBasicType.String ], 
-            [ "Ticker", JavascriptBasicType.String ],
-            [ "Prices", <ITypedObjectConversionFunction<Array<StockPrice>>>((untypedObject: any) : Array<StockPrice> => {
+            [ "companyName", JavascriptBasicType.String ], 
+            [ "ticker", JavascriptBasicType.String ],
+            [ "prices", <ITypedObjectConversionFunction<Array<StockPrice>>>((untypedObject: any) : Array<StockPrice> => {
                             let stockPriceTypeConversionDefinition = new ObjectTypeConversionDefinition(
                                 <Iterable<[string, TypeConversionDefinition]>>
                                 [
-                                    [ "Date", JavascriptBasicType.Date ], 
-                                    [ "Price", JavascriptBasicType.Number ]
+                                    [ "date", JavascriptBasicType.Date ], 
+                                    [ "price", JavascriptBasicType.Number ]
                                 ]
                             );
                             return new ContainerObjectTypeValidator().ValidateAndConvertObjectArray<StockPrice>(untypedObject, StockPrice, stockPriceTypeConversionDefinition);
@@ -192,7 +203,13 @@ class StockWithTypeConversionDefinition {
     protected companyName: string;
     protected ticker: string;
     protected prices: Array<StockPrice>
-    
+            
+    constructor() {
+        this.companyName = "";
+        this.ticker = "";
+        this.prices = [];
+    }
+
     get CompanyName(): string {
         return this.companyName;
     }
@@ -277,17 +294,17 @@ export class DataValidationSamples {
         // Validating and converting a simple container object...
         // ------------------------------------------------------
         let untypedObject: any = {
-            DisplayName: "Onion", 
-            PricePerUnit: 380, 
-            Unit: "Kilogram"
+            displayName: "Onion", 
+            pricePerUnit: 380, 
+            unit: "Kilogram"
         };
 
         let storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
             <Iterable<[string, TypeConversionDefinition]>>
             [
-                [ "DisplayName", JavascriptBasicType.String ], 
-                [ "PricePerUnit", JavascriptBasicType.Number ], 
-                [ "Unit", 
+                [ "displayName", JavascriptBasicType.String ], 
+                [ "pricePerUnit", JavascriptBasicType.Number ], 
+                [ "unit", 
                     [ 
                         "Bunch", "Piece", "Kilogram", "Pack"  
                     ] 
@@ -313,9 +330,9 @@ export class DataValidationSamples {
         // Failure to convert throws a descriptive error...
         // ------------------------------------------------
         untypedObject = {
-            DisplayName: "Onion", 
-            PricePerUnit: "abc",  // Error - not a number
-            Unit: "Kilogram"
+            displayName: "Onion", 
+            pricePerUnit: "abc",  // Error - not a number
+            unit: "Kilogram"
         };
         returnedStoreCatalogueItem = containerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(
             untypedObject, 
@@ -323,12 +340,12 @@ export class DataValidationSamples {
             storeCatalogueItemObjectTypeConversionDefinition
         );
         // Throws error...
-        //   'Error attempting to validate and convert property 'PricePerUnit':  Parameter 'untypedNumber' with value 'abc' could not be converted to a number.'
+        //   'Error attempting to validate and convert property 'pricePerUnit':  Parameter 'untypedNumber' with value 'abc' could not be converted to a number.'
 
         untypedObject = {
-            DisplayName: "Onion", 
-            PricePerUnit: 380, 
-            Unit: "Pound"  // Error - not a valid enum value
+            displayName: "Onion", 
+            pricePerUnit: 380, 
+            unit: "Pound"  // Error - not a valid enum value
         };
         returnedStoreCatalogueItem = containerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(
             untypedObject, 
@@ -336,7 +353,7 @@ export class DataValidationSamples {
             storeCatalogueItemObjectTypeConversionDefinition
         );
         // Throws error...
-        //   'Error attempting to validate and convert property 'Unit':  Parameter 'untypedEnumValue' with value 'Pound' could not be matched to an enum mapping value in 'Bunch,Piece,Kilogram,Pack'.'
+        //   'Error attempting to validate and convert property 'unit':  Parameter 'untypedEnumValue' with value 'Pound' could not be matched to an enum mapping value in 'Bunch,Piece,Kilogram,Pack'.'
 
 
         // -----------------------------------------------------------------------
@@ -346,9 +363,9 @@ export class DataValidationSamples {
             // 'propertyDefinitions' parameter
             <Iterable<[string, TypeConversionDefinition]>>
             [
-                [ "DisplayName", JavascriptBasicType.String ], 
-                [ "PricePerUnit", JavascriptBasicType.Number ], 
-                [ "Unit", 
+                [ "displayName", JavascriptBasicType.String ], 
+                [ "pricePerUnit", JavascriptBasicType.Number ], 
+                [ "unit", 
                     [ 
                         "Bunch", "Piece", "Kilogram", "Pack"  
                     ] 
@@ -356,14 +373,14 @@ export class DataValidationSamples {
             ], 
             // 'excludeProperties' parameter
             <Array<string>>[
-                "PricePerUnit"
+                "pricePerUnit"
             ]
         );
 
         untypedObject = {
-            DisplayName: "Onion", 
-            PricePerUnit: 380, 
-            Unit: "Kilogram" 
+            displayName: "Onion", 
+            pricePerUnit: 380, 
+            unit: "Kilogram" 
         };
 
         returnedStoreCatalogueItem = containerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItem>(
@@ -385,28 +402,28 @@ export class DataValidationSamples {
         // -------------------------------
         let untypedArray: any = [
             {
-                DisplayName: "Onion", 
-                PricePerUnit: 380, 
-                Unit: "Kilogram"
+                displayName: "Onion", 
+                pricePerUnit: 380, 
+                unit: "Kilogram"
             }, 
             {
-                DisplayName: "Avocado", 
-                PricePerUnit: 190, 
-                Unit: "Piece"
+                displayName: "Avocado", 
+                pricePerUnit: 190, 
+                unit: "Piece"
             }, 
             {
-                DisplayName: "Strawberry", 
-                PricePerUnit: 490, 
-                Unit: "Pack"
+                displayName: "Strawberry", 
+                pricePerUnit: 490, 
+                unit: "Pack"
             }
         ];
 
         storeCatalogueItemObjectTypeConversionDefinition = new ObjectTypeConversionDefinition(
             <Iterable<[string, TypeConversionDefinition]>>
             [
-                [ "DisplayName", JavascriptBasicType.String ], 
-                [ "PricePerUnit", JavascriptBasicType.Number ], 
-                [ "Unit", 
+                [ "displayName", JavascriptBasicType.String ], 
+                [ "pricePerUnit", JavascriptBasicType.Number ], 
+                [ "unit", 
                     [ 
                         "Bunch", "Piece", "Kilogram", "Pack"  
                     ] 
@@ -498,28 +515,28 @@ export class DataValidationSamples {
         // -----------------------------------------
         untypedObject = 
         {
-            "CompanyName": "BHP Billiton Limited",
-            "Ticker": "BHP.AX",
-            "Prices": [
+            "companyName": "BHP Billiton Limited",
+            "ticker": "BHP.AX",
+            "prices": [
                 {
-                    "Date": "2019-09-24T00:00:00",
-                    "Price": "37.5"
+                    "date": "2019-09-24T00:00:00",
+                    "price": "37.5"
                 },
                 {
-                    "Date": "2019-09-25T00:00:00",
-                    "Price": "36.42"
+                    "date": "2019-09-25T00:00:00",
+                    "price": "36.42"
                 },
                 {
-                    "Date": "2019-09-26T00:00:00",
-                    "Price": "36.82"
+                    "date": "2019-09-26T00:00:00",
+                    "price": "36.82"
                 },
                 {
-                    "Date": "2019-09-27T00:00:00",
-                    "Price": "36.5"
+                    "date": "2019-09-27T00:00:00",
+                    "price": "36.5"
                 },
                 {
-                    "Date": "2019-09-30T00:00:00",
-                    "Price": "36.92"
+                    "date": "2019-09-30T00:00:00",
+                    "price": "36.92"
                 }
             ]
         };
@@ -528,14 +545,14 @@ export class DataValidationSamples {
             // Parameter 'propertyDefinitions'
             <Iterable<[string, TypeConversionDefinition]>>
             [
-                [ "CompanyName", JavascriptBasicType.String ], 
-                [ "Ticker", JavascriptBasicType.String ],
-                [ "Prices", <ITypedObjectConversionFunction<Array<StockPrice>>>((untypedObject: any) : Array<StockPrice> => {
+                [ "companyName", JavascriptBasicType.String ], 
+                [ "ticker", JavascriptBasicType.String ],
+                [ "prices", <ITypedObjectConversionFunction<Array<StockPrice>>>((untypedObject: any) : Array<StockPrice> => {
                                 let stockPriceTypeConversionDefinition = new ObjectTypeConversionDefinition(
                                     <Iterable<[string, TypeConversionDefinition]>>
                                     [
-                                        [ "Date", JavascriptBasicType.Date ], 
-                                        [ "Price", JavascriptBasicType.Number ]
+                                        [ "date", JavascriptBasicType.Date ], 
+                                        [ "price", JavascriptBasicType.Number ]
                                     ]
                                 );
                                 return containerObjectTypeValidator.ValidateAndConvertObjectArray<StockPrice>(untypedObject, StockPrice, stockPriceTypeConversionDefinition);
@@ -628,28 +645,28 @@ export class DataValidationSamples {
             // 'propertyDefinitions' parameter
             <Iterable<[string, TypeConversionDefinition]>>
             [
-                [ "DisplayName", JavascriptBasicType.String ], 
-                [ "PricePerUnit", JavascriptBasicType.Number ], 
-                [ "Unit", 
+                [ "displayName", JavascriptBasicType.String ], 
+                [ "pricePerUnit", JavascriptBasicType.Number ], 
+                [ "unit", 
                     [ 
                         "Bunch", "Piece", "Kilogram", "Pack"  
                     ] 
                 ], 
-                [ "DateAdded", JavascriptBasicType.Date ]
+                [ "dateAdded", JavascriptBasicType.Date ]
             ], 
             // 'excludeProperties' parameter
             <Array<string>>[], 
             // 'nullableProperties' parameter
             <Array<string>>[
-                "DateAdded"
+                "dateAdded"
             ]
         );
 
         untypedObject = {
-            DisplayName: "Onion", 
-            PricePerUnit: 380, 
-            Unit: "Kilogram" , 
-            DateAdded: null
+            displayName: "Onion", 
+            pricePerUnit: 380, 
+            unit: "Kilogram" , 
+            dateAdded: null
         };
 
         let returnedStoreCatalogueItem2: StoreCatalogueItemWithNullableProperty = containerObjectTypeValidator.ValidateAndConvertObject<StoreCatalogueItemWithNullableProperty>(
@@ -672,28 +689,28 @@ export class DataValidationSamples {
         // -------------------------------------------------------------------------------------
         untypedObject = 
         {
-            "CompanyName": "BHP Billiton Limited",
-            "Ticker": "BHP.AX",
-            "Prices": [
+            "companyName": "BHP Billiton Limited",
+            "ticker": "BHP.AX",
+            "prices": [
                 {
-                    "Date": "2019-09-24T00:00:00",
-                    "Price": "37.5"
+                    "date": "2019-09-24T00:00:00",
+                    "price": "37.5"
                 },
                 {
-                    "Date": "2019-09-25T00:00:00",
-                    "Price": "36.42"
+                    "date": "2019-09-25T00:00:00",
+                    "price": "36.42"
                 },
                 {
-                    "Date": "2019-09-26T00:00:00",
-                    "Price": "36.82"
+                    "date": "2019-09-26T00:00:00",
+                    "price": "36.82"
                 },
                 {
-                    "Date": "2019-09-27T00:00:00",
-                    "Price": "36.5"
+                    "date": "2019-09-27T00:00:00",
+                    "price": "36.5"
                 },
                 {
-                    "Date": "2019-09-30T00:00:00",
-                    "Price": "36.92"
+                    "date": "2019-09-30T00:00:00",
+                    "price": "36.92"
                 }
             ]
         };

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ export class TimedLoopBufferFlushStrategy<T> extends BufferFlushStrategyBase<T> 
     }
 
     /** @inheritdoc */
-    public NotifyItemBufferred(): void {
+    public NotifyItemBuffered(): void {
         
     }
 

@@ -42,26 +42,26 @@ describe("SizeLimitedBufferFlushStrategy Tests", () => {
         done();
     });
 
-    it("NotifyItemBufferred(): Call without setting 'Buffer' property throws exception.", done => {
+    it("NotifyItemBuffered(): Call without setting 'Buffer' property throws exception.", done => {
         testSizeLimitedBufferFlushStrategy = new SizeLimitedBufferFlushStrategy<number>(5);
         expect(() => {
-            testSizeLimitedBufferFlushStrategy.NotifyItemBufferred();
+            testSizeLimitedBufferFlushStrategy.NotifyItemBuffered();
         }).toThrow(new Error("The 'Buffer' property has not been set."));
 
         done();
     });
 
-    it("NotifyItemBufferred(): Success test.", done => {
+    it("NotifyItemBuffered(): Success test.", done => {
         (<any>(mockBuffer)).ItemCount = 4;
 
-        testSizeLimitedBufferFlushStrategy.NotifyItemBufferred();
+        testSizeLimitedBufferFlushStrategy.NotifyItemBuffered();
 
         expect(mockBuffer.Flush).toBeCalledTimes(0);
 
 
         (<any>(mockBuffer)).ItemCount = 5;
 
-        testSizeLimitedBufferFlushStrategy.NotifyItemBufferred();
+        testSizeLimitedBufferFlushStrategy.NotifyItemBuffered();
 
         expect(mockBuffer.Flush).toBeCalledTimes(1);
 
@@ -69,7 +69,7 @@ describe("SizeLimitedBufferFlushStrategy Tests", () => {
         (<any>(mockBuffer)).Flush.mockClear();
         (<any>(mockBuffer)).ItemCount = 6;
 
-        testSizeLimitedBufferFlushStrategy.NotifyItemBufferred();
+        testSizeLimitedBufferFlushStrategy.NotifyItemBuffered();
 
         expect(mockBuffer.Flush).toBeCalledTimes(1);
 

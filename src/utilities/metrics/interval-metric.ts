@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2021 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-import { ISessionIdProvider } from "./isession-id-provider";
-import { v4 as uuid } from 'uuid';
+import { MetricBase } from './metric-base'
 
 /**
- * @name UuidSessionIdProvider
- * @desc Implementation of ISessionIdProvider which generates session ids as UUIDs.
+ * @name IntervalMetric
+ * @desc Base class for metrics representing an event which has a distinct start and end time, and the interval between these start and end times would be recorded.
+ * @example Examples of derived classes could be metrics representing the time taken to send a message to a remote system, or the time taken to perform a calculation.
  */
-export class UuidSessionIdProvider implements ISessionIdProvider{
+export abstract class IntervalMetric extends MetricBase {
 
-    /**
-     * @name GenerateId
-     * @desc Returns a new UUID as the session id.
-
-     * @returns {string} - A new UUID.
-     */
-    public GenerateId(): string {
-        return uuid();
-    }
 }

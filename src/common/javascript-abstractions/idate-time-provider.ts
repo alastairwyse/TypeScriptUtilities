@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,19 @@ export interface IDateTimeProvider {
 
     /**
      * @name GetCurrentDateTime
+     * @desc Returns the current date and time.
+     * 
+     * @returns {string} - The current date and time.
+     */
+     GetCurrentDateTime() : Date;
+
+    /**
+     * @name GetCurrentDateTime
      * @desc Returns the current date and time as a formatted string.
      * 
      * @param {string} format - The format to return the date and time in (in the formats supported by moment.js... see https://momentjs.com/docs/#/displaying/format/).
      * 
      * @returns {string} - The current date and time.
      */
-    GetCurrentDateTime(format: string) : string;
+    GetCurrentDateTimeFormatted(format: string) : string;
 }

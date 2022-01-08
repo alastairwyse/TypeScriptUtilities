@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
+ * Copyright 2022 Alastair Wyse (https://github.com/alastairwyse/TypeScriptUtilities/)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ export abstract class LoggerBase implements ILogger {
             returnString = <string>this.userId + " " + this.separatorString + " ";
         }
         returnString += this.sessionId + " " + this.separatorString + " ";
-        returnString += this.dateTimeProvider.GetCurrentDateTime(this.dateTimeFormat) + " " + this.separatorString + " ";
+        returnString += this.dateTimeProvider.GetCurrentDateTimeFormatted(this.dateTimeFormat) + " " + this.separatorString + " ";
 
         return returnString;
     }

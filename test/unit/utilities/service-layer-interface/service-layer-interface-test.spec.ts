@@ -97,7 +97,7 @@ describe("ServiceLayerInterface Tests", () => {
         done();
     });
 
-    it("CallServiceLayer(): Unhandled HTTP content (MIME) type for resolved promise throws exception.", done => {
+    it("CallServiceLayer(): Unhandled HTTP content (MIME) type for resolved promise throws exception.", () => {
 
         let responseContent = { "name": "value" };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, "unhandled-content-type", "json", 200, "OK");
@@ -108,7 +108,7 @@ describe("ServiceLayerInterface Tests", () => {
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json)
         .then((result: ServiceLayerCallResult) => {
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`); 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`);
         })
         .catch((result: ServiceLayerCallResult) => { 
             // Check parameters to Call() method
@@ -124,11 +124,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("OK");
             expect(result.Success).toBe(false);
             expect(result.SystemErrorMessage).toBe("Response contained unhandled HTTP content type 'unhandled-content-type' calling URL 'http://www.example.com:80/api/myPath/'.");
-            done();
         });
     });
 
-    it("CallServiceLayer(): Unhandled HTTP content (MIME) type for rejected promise throws exception.", done => {
+    it("CallServiceLayer(): Unhandled HTTP content (MIME) type for rejected promise throws exception.", () => {
         let responseContent = { "name": "value" };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, "application/octet-stream", "error", 200, "OK");
         mockHttpClientCallMethod.mockReturnValueOnce(
@@ -138,7 +137,7 @@ describe("ServiceLayerInterface Tests", () => {
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json)
         .then((result: ServiceLayerCallResult) => {
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`); 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`);
         })
         .catch((result: ServiceLayerCallResult) => { 
             // Check parameters to Call() method
@@ -154,11 +153,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("OK");
             expect(result.Success).toBe(false);
             expect(result.SystemErrorMessage).toBe("Response contained unhandled HTTP content type 'application/octet-stream' calling URL 'http://www.example.com:80/api/myPath/'.");
-            done();
         });
     });
 
-    it("CallServiceLayer(): Non success HTTP status throws exception.", done => {
+    it("CallServiceLayer(): Non success HTTP status throws exception.", () => {
         let returnedHttpResponse: HttpResponse = new HttpResponse("", null, "json", 404, "Not Found");
         mockHttpClientCallMethod.mockReturnValueOnce(
             CreateIHttpResponsePromise(returnedHttpResponse, false)
@@ -167,7 +165,7 @@ describe("ServiceLayerInterface Tests", () => {
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json)
         .then((result: ServiceLayerCallResult) => {
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`); 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`);
         })
         .catch((result: ServiceLayerCallResult) => { 
             // Check parameters to Call() method
@@ -183,11 +181,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("Not Found");
             expect(result.Success).toBe(false);
             expect(result.SystemErrorMessage).toBe("Response returned non-success HTTP status code 404 indicating 'Not Found' status calling URL 'http://www.example.com:80/api/myPath/'.");
-            done();
         });
     });
 
-    it("CallServiceLayer(): Timeout throws exception, default timeout.", done => {
+    it("CallServiceLayer(): Timeout throws exception, default timeout.", () => {
         let responseContent = { "isTrusted": true };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, null, "timeout", 0, "");
         mockHttpClientCallMethod.mockReturnValueOnce(
@@ -197,7 +194,7 @@ describe("ServiceLayerInterface Tests", () => {
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json)
         .then((result: ServiceLayerCallResult) => {
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`); 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`);
         })
         .catch((result: ServiceLayerCallResult) => { 
             // Check parameters to Call() method
@@ -213,11 +210,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("");
             expect(result.Success).toBe(false);
             expect(result.SystemErrorMessage).toBe("Call timed out attempting to connect to URL 'http://www.example.com:80/api/myPath/' after 1000 milliseconds.");
-            done();
         });
     });
 
-    it("CallServiceLayer(): Timeout throws exception, overloaded timeout.", done => {
+    it("CallServiceLayer(): Timeout throws exception, overloaded timeout.", () => {
         let responseContent = { "isTrusted": true };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, null, "timeout", 0, "");
         mockHttpClientCallMethod.mockReturnValueOnce(
@@ -227,7 +223,7 @@ describe("ServiceLayerInterface Tests", () => {
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json, 500)
         .then((result: ServiceLayerCallResult) => {
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`); 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`);
         })
         .catch((result: ServiceLayerCallResult) => { 
             // Check parameters to Call() method
@@ -243,11 +239,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("");
             expect(result.Success).toBe(false);
             expect(result.SystemErrorMessage).toBe("Call timed out attempting to connect to URL 'http://www.example.com:80/api/myPath/' after 500 milliseconds.");
-            done();
         });
     });
 
-    it("CallServiceLayer(): Failure to connect throws exception.", done => {
+    it("CallServiceLayer(): Failure to connect throws exception.", () => {
         let responseContent = { "isTrusted": true };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, null, "error", 0, "");
         mockHttpClientCallMethod.mockReturnValueOnce(
@@ -257,7 +252,7 @@ describe("ServiceLayerInterface Tests", () => {
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json)
         .then((result: ServiceLayerCallResult) => {
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`); 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`);
         })
         .catch((result: ServiceLayerCallResult) => { 
             // Check parameters to Call() method
@@ -273,11 +268,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("");
             expect(result.Success).toBe(false);
             expect(result.SystemErrorMessage).toBe("Failed to connect to URL 'http://www.example.com:80/api/myPath/'.");
-            done();
         });
     });
 
-    it("CallServiceLayer(): Unknown error throws exception.", done => {
+    it("CallServiceLayer(): Unknown error throws exception.", () => {
         let responseContent = { "isTrusted": true };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, null, "something else", 0, "");
         mockHttpClientCallMethod.mockReturnValueOnce(
@@ -287,7 +281,7 @@ describe("ServiceLayerInterface Tests", () => {
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json)
         .then((result: ServiceLayerCallResult) => {
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`); 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a resolved promise.  ${result}`);
         })
         .catch((result: ServiceLayerCallResult) => { 
             // Check parameters to Call() method
@@ -303,11 +297,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("");
             expect(result.Success).toBe(false);
             expect(result.SystemErrorMessage).toBe("Unknown error occurred attempting to connect to URL 'http://www.example.com:80/api/myPath/'.");
-            done();
         });
     });
 
-    it("CallServiceLayer(): Success test.", done => {
+    it("CallServiceLayer(): Success test.", () => {
         let responseContent = { "name": "value" };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, "application/json", "json", 200, "OK");
         mockHttpClientCallMethod.mockReturnValueOnce(
@@ -316,6 +309,9 @@ describe("ServiceLayerInterface Tests", () => {
         let url: HttpUrlPathAndQueryBuilder = new HttpUrlPathAndQueryBuilder("myPath/");
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json)
+        .catch((result: ServiceLayerCallResult) => { 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a rejected promise.  ${result}`);
+        })
         .then((result: ServiceLayerCallResult) => {
             // Check parameters to Call() method
             expect(mockHttpClientCallMethod.mock.calls[0][0]).toBe("http://www.example.com:80/api/myPath/");
@@ -330,14 +326,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("OK");
             expect(result.Success).toBe(true);
             expect(result.SystemErrorMessage).toBe("");
-            done();
-        })
-        .catch((result: ServiceLayerCallResult) => { 
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a rejected promise.  ${result}`); 
         });
     });
 
-    it("CallServiceLayer(): Override base URL success test.", done => {
+    it("CallServiceLayer(): Override base URL success test.", () => {
         let responseContent = { "name": "value" };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, "application/json", "json", 200, "OK");
         mockHttpClientCallMethod.mockReturnValueOnce(
@@ -346,6 +338,9 @@ describe("ServiceLayerInterface Tests", () => {
         let url: HttpUrlBuilder = new HttpUrlBuilder(UrlScheme.Https, "www.example.com", 8080, "api/myPath/");
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json)
+        .catch((result: ServiceLayerCallResult) => { 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a rejected promise.  ${result}`);
+        })
         .then((result: ServiceLayerCallResult) => {
             // Check parameters to Call() method
             expect(mockHttpClientCallMethod.mock.calls[0][0]).toBe("https://www.example.com:8080/api/myPath/");
@@ -360,14 +355,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("OK");
             expect(result.Success).toBe(true);
             expect(result.SystemErrorMessage).toBe("");
-            done();
-        })
-        .catch((result: ServiceLayerCallResult) => { 
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a rejected promise.  ${result}`); 
         });
     });
 
-    it("CallServiceLayer(): Pass URL as string success test.", done => {
+    it("CallServiceLayer(): Pass URL as string success test.", () => {
         let responseContent = { "name": "value" };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, "application/json", "json", 200, "OK");
         mockHttpClientCallMethod.mockReturnValueOnce(
@@ -376,6 +367,9 @@ describe("ServiceLayerInterface Tests", () => {
         let url: string = "https://www.example.com:8080/api/myPath/";
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json)
+        .catch((result: ServiceLayerCallResult) => { 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a rejected promise.  ${result}`);
+        })
         .then((result: ServiceLayerCallResult) => {
             // Check parameters to Call() method
             expect(mockHttpClientCallMethod.mock.calls[0][0]).toBe("https://www.example.com:8080/api/myPath/");
@@ -390,14 +384,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("OK");
             expect(result.Success).toBe(true);
             expect(result.SystemErrorMessage).toBe("");
-            done();
-        })
-        .catch((result: ServiceLayerCallResult) => { 
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a rejected promise.  ${result}`); 
         });
     });
 
-    it("CallServiceLayer(): Override timeout success test.", done => {
+    it("CallServiceLayer(): Override timeout success test.", () => {
         let responseContent = { "name": "value" };
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, "application/json", "json", 200, "OK");
         mockHttpClientCallMethod.mockReturnValueOnce(
@@ -406,6 +396,9 @@ describe("ServiceLayerInterface Tests", () => {
         let url: HttpUrlPathAndQueryBuilder = new HttpUrlPathAndQueryBuilder("myPath/");
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Get, "", HttpContentType.Application_Json, 1500)
+        .catch((result: ServiceLayerCallResult) => { 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a rejected promise.  ${result}`);
+        })
         .then((result: ServiceLayerCallResult) => {
             // Check parameters to Call() method
             expect(mockHttpClientCallMethod.mock.calls[0][0]).toBe("http://www.example.com:80/api/myPath/");
@@ -420,14 +413,10 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("OK");
             expect(result.Success).toBe(true);
             expect(result.SystemErrorMessage).toBe("");
-            done();
-        })
-        .catch((result: ServiceLayerCallResult) => { 
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a rejected promise.  ${result}`); 
         });
     });
 
-    it("CallServiceLayer(): PUT returns null MIME type success test.", done => {
+    it("CallServiceLayer(): PUT returns null MIME type success test.", () => {
         let responseContent = "";
         let returnedHttpResponse: HttpResponse = new HttpResponse(responseContent, null, "json", 200, "OK");
         mockHttpClientCallMethod.mockReturnValueOnce(
@@ -436,6 +425,9 @@ describe("ServiceLayerInterface Tests", () => {
         let url: HttpUrlPathAndQueryBuilder = new HttpUrlPathAndQueryBuilder("myPath/");
 
         return testServiceLayerInterface.CallServiceLayer(url, HttpRequestMethod.Put, `{ "name": "value" }`, HttpContentType.Application_Json, 1500)
+        .catch((result: ServiceLayerCallResult) => { 
+            throw new Error(`Call to ServiceLayerInterface.CallServiceLayer() returned a rejected promise.  ${result}`);
+        })
         .then((result: ServiceLayerCallResult) => {
             // Check parameters to Call() method
             expect(mockHttpClientCallMethod.mock.calls[0][0]).toBe("http://www.example.com:80/api/myPath/");
@@ -450,10 +442,6 @@ describe("ServiceLayerInterface Tests", () => {
             expect(result.ReturnedHttpStatusText).toBe("OK");
             expect(result.Success).toBe(true);
             expect(result.SystemErrorMessage).toBe("");
-            done();
-        })
-        .catch((result: ServiceLayerCallResult) => { 
-            fail(`Call to ServiceLayerInterface.CallServiceLayer() returned a rejected promise.  ${result}`); 
         });
     });
 

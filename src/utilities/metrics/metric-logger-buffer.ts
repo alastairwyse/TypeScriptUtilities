@@ -38,16 +38,9 @@ import { MetricType } from './metric-type';
 
 /**
  * @name MetricLoggerBufffer
- * @desc Base class which acts as a buffer for implementations of interface IMetricLogger.
+ * @desc Base class which acts as a buffer for implementations of interface IMetricLogger.  Derived classes must implement method LogMetricEvents() which is called when the buffer is flushed.
  */
 export abstract class MetricLoggerBuffer implements IMetricLogger, IBufferFlushAction<MetricEventInstance<MetricBase>> {
-
-    // TODO: Will need to log a session id... where do I specify this>
-    //   Likely should be done in classes deriving from this
-    //   Add comment to class to say which abstract method should be implemented (like c# equivalent)    
-    //   '@throws' should be put in method comments
-
-
 
     /** Queue used to buffer metrics. */
     protected metricEventQueue: IBuffer<MetricEventInstance<any>>;

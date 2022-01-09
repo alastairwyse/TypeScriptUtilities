@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as moment from 'moment';
+import moment from 'moment';
 import { IDateTimeProvider } from '../../../../src/common/javascript-abstractions/idate-time-provider'; 
 
 /**

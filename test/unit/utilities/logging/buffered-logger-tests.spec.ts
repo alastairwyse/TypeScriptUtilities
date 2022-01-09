@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as moment from 'moment';
+import moment from 'moment';
 import { IBufferFlushStrategy } from '../../../../src/utilities/buffering/ibuffer-flush-strategy';
 import { IBufferFlushAction } from '../../../../src/utilities/buffering/ibuffer-flush-action';
 import { LogLevel } from '../../../../src/utilities/logging/log-level';
